@@ -6,7 +6,7 @@
   const draftKey = 'irrigation-estimate-draft-v1';
   const priceKey = 'irrigation-material-prices-v1';
   const constructionFields = ['area', 'spec', 'spacing'];
-  const constructionInputs = ['estimateName'].concat(constructionFields);
+  const constructionInputs = ['estimateName', 'farmName', 'farmAddress'].concat(constructionFields);
   const costFields = ['unitPrice', 'workers', 'days', 'dailyWage'];
   const $ = (id) => document.getElementById(id);
   const format = (value) => new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 }).format(value);
@@ -79,8 +79,12 @@
     const container = $('construction-summary');
     container.replaceChildren();
     const estimateName = typeof draft.estimateName === 'string' ? draft.estimateName.trim().slice(0, 80) : '';
+    const farmName = typeof draft.farmName === 'string' ? draft.farmName.trim().slice(0, 80) : '';
+    const farmAddress = typeof draft.farmAddress === 'string' ? draft.farmAddress.trim().slice(0, 200) : '';
     const items = [
       ['견적서 이름', estimateName || '이름 없는 견적'],
+      ['농가명', farmName || '미입력'],
+      ['소재지주소', farmAddress || '미입력'],
       ['시공 면적', format(number(draft.area)) + ' ㎡ (약 ' + pyeong(number(draft.area)) + ' 평)'],
       ['배관 규격', material.spec + ' (예시)'],
       ['배관 간격', format(number(draft.spacing)) + ' m']
@@ -88,10 +92,11 @@
     items.forEach(([label, value], index) => {
       const item = document.createElement('div');
       if (index === 0) item.className = 'estimate-name-summary';
+      if (index === 2) item.className = 'farm-address-summary';
       const title = document.createElement('span');
       title.textContent = label;
       const content = document.createElement('strong');
-      content.className = index === 0 ? 'estimate-name-value' : 'summary-value';
+      content.className = index <= 2 ? 'estimate-name-value' : 'summary-value';
       content.textContent = value;
       item.append(title, content);
       container.append(item);

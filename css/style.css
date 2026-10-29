@@ -185,6 +185,8 @@ input[type="number"], .numeric-preview, .summary-value {
 #total-cost { color: var(--number-total); }
 .estimate-name-summary { flex-basis: 100%; }
 .estimate-name-value { font-weight: 650; }
+.farm-address-summary { flex-basis: 100%; min-width: 0; }
+.farm-address-summary strong { overflow-wrap: anywhere; }
 input:hover, select:hover { border-color: var(--primary); }
 input:focus, select:focus {
   border-color: var(--primary);
