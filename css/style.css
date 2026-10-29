@@ -165,6 +165,17 @@ h2 { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.5; letter-spac
 }
 .budget-fields legend { padding: 0 8px; font-size: 17px; font-weight: 700; }
 .budget-fields > .field-help:first-of-type { margin: 0 0 20px; }
+.attachment-preview img, .attachment-figure img {
+  display: block;
+  max-width: 100%;
+  max-height: 560px;
+  margin: 12px auto;
+  object-fit: contain;
+}
+.attachment-figure { margin: 24px 0 0; }
+.attachment-figure figcaption { font-weight: 650; overflow-wrap: anywhere; }
+.attachment-remove { margin-top: 12px; }
+.button:disabled { opacity: .55; cursor: wait; }
 .field label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 15px; font-weight: 650; }
 input, select {
   width: 100%;
@@ -449,4 +460,13 @@ body[data-page="construction"] .primary span {
   body[data-page="result"] .card,
   body[data-page="result"] .notice { break-inside: avoid; }
   body[data-page="result"] thead { display: table-header-group; }
+  body[data-page="result"] #result-attachments {
+    break-inside: auto;
+    break-before: page;
+    border: 0;
+    padding: 0;
+  }
+  body[data-page="result"] .attachment-figure { break-inside: avoid; }
+  body[data-page="result"] .attachment-figure + .attachment-figure { break-before: page; }
+  body[data-page="result"] .attachment-figure img { max-height: 220mm; width: 100%; }
 }

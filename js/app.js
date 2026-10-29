@@ -5,7 +5,7 @@
   const mock = window.ESTIMATE_MOCK;
   const draftKey = 'irrigation-estimate-draft-v1';
   const priceKey = 'irrigation-material-prices-v1';
-  const fundingFields = ['selfFunding', 'subsidy'];
+  const fundingFields = ['totalBudget'];
   const constructionFields = ['area', 'spec', 'spacing'].concat(fundingFields);
   const constructionInputs = ['estimateName', 'farmName', 'farmAddress'].concat(constructionFields);
   const costFields = ['unitPrice', 'workers', 'days', 'dailyWage'];
@@ -44,9 +44,17 @@
     return Number.isFinite(parsed) ? parsed : NaN;
   }
   const isBlank = (value) => value == null || (typeof value === 'string' && value.trim() === '');
-  const fundingAmount = (data, key) => isBlank(data[key]) ? 0 : number(data[key]);
-  const budgetTotal = (data) => fundingFields.reduce((total, key) => total + fundingAmount(data, key), 0);
-  const hasFunding = (data) => fundingFields.some((key) => !isBlank(data[key]));
+  const budgetTotal = (data) => isBlank(data.totalBudget) ? 0 : number(data.totalBudget);
+  const hasFunding = (data) => !isBlank(data.totalBudget);
+  const selfFunding = (data) => budgetTotal(data) * 0.4;
+  const subsidy = (data) => budgetTotal(data) - selfFunding(data);
+  function migrateBudget(data) {
+    if (data.totalBudget == null && [data.selfFunding, data.subsidy].some((value) => !isBlank(value))) {
+      data.totalBudget = String((isBlank(data.selfFunding) ? 0 : number(data.selfFunding)) + (isBlank(data.subsidy) ? 0 : number(data.subsidy)));
+    }
+    return data;
+  }
+  migrateBudget(draft);
 
   function errorsFor(data, fields) {
     const errors = {};
@@ -62,11 +70,8 @@
         if (value <= 0) errors[key] = '0보다 큰 값을 입력해 주세요.';
       } else if (value < 0) errors[key] = '0 이상의 값을 입력해 주세요.';
       else if (key === 'workers' && !Number.isSafeInteger(value)) errors[key] = '작업 인원은 0 이상의 정수로 입력해 주세요.';
-      else if (fundingFields.includes(key) && value > Number.MAX_SAFE_INTEGER) errors[key] = '입력 가능한 금액 범위를 초과했습니다.';
+      else if (key === 'totalBudget' && (!Number.isSafeInteger(value) || value > Number.MAX_SAFE_INTEGER / 100)) errors[key] = '계산 가능한 범위의 원 단위 정수로 입력해 주세요.';
     });
-    if (fundingFields.every((key) => fields.includes(key) && !errors[key]) && budgetTotal(data) > Number.MAX_SAFE_INTEGER) {
-      errors.subsidy = '총사업비가 계산 가능한 범위를 초과했습니다. 금액을 줄여 주세요.';
-    }
     return errors;
   }
   function showErrors(errors, fields) {
@@ -100,8 +105,8 @@
       ['배관 규격', material.spec + ' (예시)'],
       ['배관 간격', format(number(draft.spacing)) + ' m'],
       ['총사업비', hasFunding(draft) ? money(budgetTotal(draft)) : '미입력'],
-      ['자부담금', isBlank(draft.selfFunding) ? '미입력' : money(number(draft.selfFunding))],
-      ['보조금', isBlank(draft.subsidy) ? '미입력' : money(number(draft.subsidy))]
+      ['자부담금 (40%)', hasFunding(draft) ? money(selfFunding(draft)) : '미입력'],
+      ['보조금 (60%)', hasFunding(draft) ? money(subsidy(draft)) : '미입력']
     ];
     items.forEach(([label, value], index) => {
       const item = document.createElement('div');
@@ -158,7 +163,8 @@
         $(key + '-error').textContent = errors[key] || '';
         $(key).setAttribute('aria-invalid', errors[key] ? 'true' : 'false');
       });
-      $('budget-total').textContent = Object.keys(errors).length ? '금액을 확인해 주세요.' : hasFunding(draft) ? money(budgetTotal(draft)) : '미입력';
+      $('self-funding').textContent = Object.keys(errors).length ? '금액 확인 필요' : hasFunding(draft) ? money(selfFunding(draft)) : '미입력';
+      $('subsidy-amount').textContent = Object.keys(errors).length ? '금액 확인 필요' : hasFunding(draft) ? money(subsidy(draft)) : '미입력';
       return errors;
     }
     updateBudgetPreview();
@@ -218,7 +224,7 @@
   }
 
   function renderResult() {
-    draft = readStorage('sessionStorage', draftKey);
+    draft = migrateBudget(readStorage('sessionStorage', draftKey));
     const result = draft.priceSpec === draft.spec ? calculate(draft) : null;
     showContent('result-content', Boolean(result));
     if (!result) return false;
@@ -245,7 +251,8 @@
     $('recalculate').addEventListener('click', () => {
       if (renderResult()) $('result-status').textContent = '현재 입력값으로 견적을 다시 계산했습니다.';
     });
-    $('print-estimate').addEventListener('click', () => {
+    $('print-estimate').addEventListener('click', async () => {
+      if (window.estimateAttachmentsReady && !await window.estimateAttachmentsReady) return;
       if (renderResult()) window.print();
     });
   }

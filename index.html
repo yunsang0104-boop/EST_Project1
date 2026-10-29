@@ -9,6 +9,7 @@
     </script>
     <script src="js/app.js" defer>
     </script>
+    <script src="js/attachments.js" defer></script>
   </head>
   <body data-page="construction">
     <header class="site-header">
@@ -56,22 +57,21 @@
             </div>
             <fieldset class="budget-fields">
               <legend>사업비</legend>
-              <p class="field-help">자부담금과 보조금을 입력하면 총사업비를 합산합니다. 선택 입력 항목입니다.</p>
+              <p class="field-help">총사업비를 입력하면 자부담금 40%, 보조금 60%를 자동 계산합니다.</p>
               <div class="field">
-                <label for="selfFunding">자부담금 <span class="unit-label">원</span></label>
-                <input id="selfFunding" name="selfFunding" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 2000000" aria-describedby="selfFunding-error">
-                <p class="field-error" id="selfFunding-error"></p>
-              </div>
-              <div class="field">
-                <label for="subsidy">보조금 <span class="unit-label">원</span></label>
-                <input id="subsidy" name="subsidy" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 8000000" aria-describedby="subsidy-error">
-                <p class="field-error" id="subsidy-error"></p>
+                <label for="totalBudget">총사업비 <span class="unit-label">원 · 선택</span></label>
+                <input id="totalBudget" name="totalBudget" type="number" min="0" step="1" inputmode="numeric" placeholder="예: 10000000" aria-describedby="totalBudget-error">
+                <p class="field-error" id="totalBudget-error"></p>
               </div>
               <div class="subtotal">
-                <span>총사업비</span>
-                <strong id="budget-total" role="status">미입력</strong>
+                <span>자부담금 (40%)</span>
+                <strong id="self-funding" role="status">미입력</strong>
               </div>
-              <p class="field-help">총사업비 = 자부담금 + 보조금 · 예상 시공 견적은 별도로 계산됩니다.</p>
+              <div class="subtotal">
+                <span>보조금 (60%)</span>
+                <strong id="subsidy-amount" role="status">미입력</strong>
+              </div>
+              <p class="field-help">예상 시공 견적은 별도로 계산됩니다.</p>
             </fieldset>
             <div class="field">
               <label for="area">시공 면적 <span class="unit-label">㎡</span>
@@ -98,6 +98,24 @@
               <p class="field-error" id="spacing-error">
               </p>
             </div>
+            <fieldset class="budget-fields">
+              <legend>도면 첨부</legend>
+              <p class="field-help" id="attachment-help">PNG, JPG, WEBP 이미지 · 각 10MB 이하 · 첨부한 이미지는 이 브라우저에 저장되며 견적서에도 출력됩니다.</p>
+              <div class="field" data-attachment="installation">
+                <label for="installation-file">설치도면 <span class="unit-label">선택</span></label>
+                <input id="installation-file" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="attachment-help installation-status">
+                <p id="installation-status" class="field-help" role="status"></p>
+                <div class="attachment-preview"></div>
+                <button type="button" class="button secondary attachment-remove" hidden>설치도면 삭제</button>
+              </div>
+              <div class="field" data-attachment="address">
+                <label for="address-file">사업자 주소 지도면 <span class="unit-label">선택</span></label>
+                <input id="address-file" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="attachment-help address-status">
+                <p id="address-status" class="field-help" role="status"></p>
+                <div class="attachment-preview"></div>
+                <button type="button" class="button secondary attachment-remove" hidden>지도면 삭제</button>
+              </div>
+            </fieldset>
             <div class="form-actions">
               <span class="muted">다음 단계에서 비용을 입력합니다.</span>
               <button class="button primary" type="submit">다음 단계 <span aria-hidden="true">→</span>
