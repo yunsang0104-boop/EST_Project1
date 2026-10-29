@@ -62,9 +62,12 @@
                   <label>단위<input data-field="unit" type="text" maxlength="20" placeholder="예: m, 개, 식"></label>
                   <label>수량<input data-field="quantity" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 100"></label>
                   <label>단가 (원)<input data-field="unitPrice" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 600"></label>
+                  <div class="item-total-field">
+                    <span>금액 (원)</span>
+                    <strong class="item-amount" role="status">미입력</strong>
+                  </div>
                 </div>
                 <p class="item-error field-error" role="alert"></p>
-                <div class="subtotal"><span>품목 금액</span><strong class="item-amount">—</strong></div>
               </div>
             </template>
             <div class="subtotal"><span>자재비 합계</span><strong id="items-subtotal" role="status">—</strong></div>

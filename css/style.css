@@ -179,9 +179,11 @@ h2 { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.5; letter-spac
 .estimate-item { padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: var(--control-radius); }
 .estimate-item .section-heading { margin-bottom: 16px; }
 .item-heading { margin: 0; font-size: 16px; }
-.item-fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, .7fr) minmax(0, .8fr) minmax(0, 1.2fr); gap: 16px; }
+.item-fields { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr) minmax(0, .7fr) minmax(0, .8fr) minmax(0, 1.1fr) minmax(0, 1.3fr); gap: 12px; }
 .item-fields label { min-width: 0; font-size: 13px; font-weight: 650; }
 .item-fields input { display: block; margin-top: 8px; }
+.item-total-field { min-width: 0; font-size: 13px; font-weight: 650; }
+.item-total-field .item-amount { display: block; min-height: 52px; margin-top: 8px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--control-radius); background: var(--secondary); font-size: 15px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .item-amount, #items-subtotal { color: var(--number-material); }
 .estimate-table { white-space: normal; }
 .estimate-table th:first-child { width: 26%; }
@@ -192,6 +194,7 @@ h2 { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.5; letter-spac
 @media (max-width: 760px) {
   .item-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .item-fields label:first-child { grid-column: 1 / -1; }
+  .item-total-field { grid-column: 1 / -1; }
   .estimate-item { padding: 16px; }
 }
 .field label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 15px; font-weight: 650; }
