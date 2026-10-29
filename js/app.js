@@ -112,7 +112,7 @@
       ['총사업비', hasFunding(draft) ? money(budgetTotal(draft)) : '미입력'],
       ['자부담금 (40%)', hasFunding(draft) ? money(selfFunding(draft)) : '미입력'],
       ['보조금 (60%)', hasFunding(draft) ? money(subsidy(draft)) : '미입력'],
-      ['관공서', businessOperator || '미입력', 'text-summary'],
+      ['시행관공서', businessOperator || '미입력', 'text-summary'],
       ['상담내용', consultationNotes || '미입력', 'consultation-summary']
     ];
     items.forEach(([label, value, rowClass], index) => {

@@ -4,7 +4,7 @@
   const groups = Array.from(document.querySelectorAll('[data-attachment]'));
   const resultSection = document.getElementById('result-attachments');
   if (!groups.length && !resultSection) return;
-  const titles = { installation: '설치도면', address: '관공서 주소 지도면' };
+  const titles = { installation: '설치도면', address: '시행관공서 주소 지도면' };
   const urls = new Set();
   let database;
   let pending = 0;
