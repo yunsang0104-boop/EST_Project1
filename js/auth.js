@@ -29,7 +29,7 @@
 
   function errorMessage(error) {
     const messages = {
-      invalid_credentials: 'メールアドレスまたはパスワードが正しくありません。',
+      invalid_credentials: '이메일 또는 비밀번호가 올바르지 않습니다.',
       email_not_confirmed: '이메일 인증이 완료되지 않았습니다. 받은 메일의 인증 링크를 확인해 주세요.',
       user_already_exists: '이미 가입된 이메일입니다. 로그인 화면에서 로그인해 주세요.',
       weak_password: '비밀번호가 보안 조건을 충족하지 않습니다. 더 길고 다양한 문자를 사용해 주세요.',
@@ -131,7 +131,7 @@
       ready = true;
       applySession(data.session);
       if (isAuthPage) { $('auth-submit').disabled = false; message(''); }
-    } catch (error) { connectionError(error); }
+    } catch (error) { if (currentRevision === revision) connectionError(error); }
   }
   checkSession();
 

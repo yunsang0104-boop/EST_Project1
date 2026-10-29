@@ -495,3 +495,30 @@ body[data-page="construction"] .primary span {
   body[data-page="result"] .attachment-figure + .attachment-figure { break-before: page; }
   body[data-page="result"] .attachment-figure img { max-height: 220mm; width: 100%; }
 }
+
+/* 인증 화면: 기존 카드·입력창·버튼 스타일을 공통으로 사용합니다. */
+.auth-main { max-width: 540px; padding-top: 24px; }
+.auth-submit { width: 100%; }
+.auth-switch { margin: 24px 0 0; color: var(--muted); font-size: 14px; text-align: center; }
+.auth-switch a { color: var(--primary); font-weight: 700; text-underline-offset: 3px; }
+.auth-message { margin: 12px 0 16px; color: var(--primary); font-size: 13px; overflow-wrap: anywhere; }
+.auth-message:empty { display: none; }
+.auth-message.auth-error { color: var(--error); }
+.auth-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 12px; margin-left: auto; min-width: 0; max-width: 320px; }
+#auth-user-email { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.auth-controls .button { min-height: 40px; padding: 8px 14px; white-space: nowrap; }
+.header-inner .auth-controls .auth-message { flex-basis: 100%; margin: 0; font-size: 12px; font-weight: 400; }
+.auth-gate { max-width: 600px; margin: 48px auto; text-align: center; }
+body[data-auth-required="true"]:not([data-auth-state="signed-in"]) > main,
+body[data-auth-required="true"]:not([data-auth-state="signed-in"]) > footer { display: none; }
+.button:disabled { cursor: wait; opacity: .6; }
+@media (max-width: 760px) {
+  body[data-auth-required="true"] .header-inner { flex-wrap: wrap; }
+  body[data-auth-required="true"] .header-inner > p { flex: 1; }
+  .auth-controls { flex-basis: 100%; max-width: 100%; justify-content: space-between; }
+  .auth-main { padding-top: 16px; }
+  .auth-gate { margin: 32px 20px; }
+}
+@media print {
+  .auth-controls, .auth-gate { display: none !important; }
+}
