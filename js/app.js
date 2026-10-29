@@ -10,7 +10,7 @@
   const emptyItem = () => ({ name: '', unit: '개', quantity: '', unitPrice: '' });
   const $ = (id) => document.getElementById(id);
   const format = (value) => new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 }).format(value);
-  const money = (value) => format(value) + ' 원';
+  const money = (value) => value == null ? '미입력' : format(value) + ' 원';
   // 1평 = 400/121 ㎡. 표시만 환산하며 물량·비용 계산에는 입력한 ㎡를 사용합니다.
   const pyeong = (area) => format(area * 121 / 400);
   let storageFailed = false;
@@ -68,8 +68,8 @@
   function errorsFor(data, fields) {
     const errors = {};
     fields.forEach((key) => {
-      // 1단계 항목은 선택 입력입니다. 입력한 숫자의 유효성은 유지합니다.
-      if (constructionFields.includes(key) && isBlank(data[key])) return;
+      // 빈 항목은 허용하되, 입력한 숫자의 유효성은 유지합니다.
+      if (isBlank(data[key])) return;
       const value = number(data[key]);
       if (!Number.isFinite(value)) errors[key] = '유효한 숫자를 입력해 주세요.';
       else if (key === 'area') {
@@ -137,26 +137,30 @@
   function itemErrors(item) {
     const errors = {};
     if (!item || typeof item !== 'object') return { name: '품목 정보를 확인해 주세요.' };
-    if (typeof item.name !== 'string' || !item.name.trim() || item.name.length > 80) errors.name = '품목명을 80자 이내로 입력해 주세요.';
-    if (typeof item.unit !== 'string' || !item.unit.trim() || item.unit.length > 20) errors.unit = '단위를 20자 이내로 입력해 주세요.';
+    if (!isBlank(item.name) && (typeof item.name !== 'string' || item.name.length > 80)) errors.name = '품목명을 80자 이내로 입력해 주세요.';
+    if (!isBlank(item.unit) && (typeof item.unit !== 'string' || item.unit.length > 20)) errors.unit = '단위를 20자 이내로 입력해 주세요.';
     const quantity = number(item.quantity);
     const price = number(item.unitPrice);
-    if (!Number.isFinite(quantity) || quantity <= 0 || quantity > Number.MAX_SAFE_INTEGER) errors.quantity = '수량은 계산 가능한 범위의 0보다 큰 숫자로 입력해 주세요.';
-    if (!Number.isFinite(price) || price < 0 || price > Number.MAX_SAFE_INTEGER) errors.unitPrice = '단가는 계산 가능한 범위의 0 이상 숫자로 입력해 주세요.';
-    if (!Object.keys(errors).length && (!Number.isFinite(quantity * price) || quantity * price > Number.MAX_SAFE_INTEGER)) errors.unitPrice = '품목 금액이 계산 가능한 범위를 초과했습니다.';
+    if (!isBlank(item.quantity) && (!Number.isFinite(quantity) || quantity <= 0 || quantity > Number.MAX_SAFE_INTEGER)) errors.quantity = '수량은 계산 가능한 범위의 0보다 큰 숫자로 입력해 주세요.';
+    if (!isBlank(item.unitPrice) && (!Number.isFinite(price) || price < 0 || price > Number.MAX_SAFE_INTEGER)) errors.unitPrice = '단가는 계산 가능한 범위의 0 이상 숫자로 입력해 주세요.';
+    if (!Object.keys(errors).length && !isBlank(item.quantity) && !isBlank(item.unitPrice) && (!Number.isFinite(quantity * price) || quantity * price > Number.MAX_SAFE_INTEGER)) errors.unitPrice = '품목 금액이 계산 가능한 범위를 초과했습니다.';
     return errors;
+  }
+
+  function itemAmount(item) {
+    return isBlank(item.quantity) || isBlank(item.unitPrice) ? null : number(item.quantity) * number(item.unitPrice);
   }
 
   // 화면과 인쇄에서 같은 수량 × 단가 합산 결과를 사용합니다.
   function calculate(data) {
     if (Object.keys(errorsFor(data, constructionFields.concat(costFields))).length) return null;
-    if (!Array.isArray(data.items) || !data.items.length || data.items.some((item) => Object.keys(itemErrors(item)).length)) return null;
-    const amounts = data.items.map((item) => number(item.quantity) * number(item.unitPrice));
-    const materialCost = amounts.reduce((sum, amount) => sum + amount, 0);
-    const laborCost = number(data.workers) * number(data.days) * number(data.dailyWage);
-    const total = materialCost + laborCost;
+    if (!Array.isArray(data.items) || data.items.some((item) => Object.keys(itemErrors(item)).length)) return null;
+    const amounts = data.items.map(itemAmount);
+    const materialCost = amounts.length && amounts.every((amount) => amount != null) ? amounts.reduce((sum, amount) => sum + amount, 0) : null;
+    const laborCost = costFields.some((key) => isBlank(data[key])) ? null : number(data.workers) * number(data.days) * number(data.dailyWage);
+    const total = materialCost == null || laborCost == null ? null : materialCost + laborCost;
     // 극단적인 입력으로 발생한 무한대 및 계산 범위 초과를 차단합니다.
-    if (![materialCost, laborCost, total].every((value) => Number.isFinite(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER)) return null;
+    if (![materialCost, laborCost, total].every((value) => value == null || (Number.isFinite(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER))) return null;
     return { amounts, materialCost, laborCost, total };
   }
 
@@ -206,7 +210,7 @@
     if (!valid) return;
     summary();
     if (!Array.isArray(draft.items) || !draft.items.length) draft.items = [emptyItem()];
-    costFields.forEach((key) => { if (draft[key] == null) draft[key] = '0'; });
+    costFields.forEach((key) => { if (draft[key] == null) draft[key] = ''; });
     populate(costFields);
     function persistCosts() {
       draft.items = Array.from($('estimate-items').children, (row) => {
@@ -219,6 +223,7 @@
     function updateAmounts(showValidation) {
       let sum = 0;
       let validItems = true;
+      let completeItems = true;
       let firstInvalid;
       Array.from($('estimate-items').children).forEach((row, index) => {
         const item = draft.items[index];
@@ -234,11 +239,12 @@
           if (!firstInvalid) firstInvalid = row.querySelector('[data-field="' + Object.keys(errors)[0] + '"]');
         }
         if (showValidation || !invalid) row.querySelector('.item-error').textContent = Object.values(errors).join(' ');
-        const amount = invalid ? null : number(item.quantity) * number(item.unitPrice);
-        row.querySelector('.item-amount').textContent = amount == null ? '—' : money(amount);
+        const amount = invalid ? null : itemAmount(item);
+        if (amount == null) completeItems = false;
+        row.querySelector('.item-amount').textContent = invalid ? '—' : money(amount);
         if (amount != null) sum += amount;
       });
-      $('items-subtotal').textContent = validItems && sum <= Number.MAX_SAFE_INTEGER ? money(sum) : '품목을 확인해 주세요.';
+      $('items-subtotal').textContent = validItems && sum <= Number.MAX_SAFE_INTEGER ? completeItems ? money(sum) : '미입력' : '품목을 확인해 주세요.';
       return firstInvalid;
     }
     function renderItems() {
@@ -291,7 +297,9 @@
       $('calculation-error').textContent = '';
       const invalidItem = updateAmounts(true);
       if (invalidItem) { invalidItem.focus(); return; }
-      if (!showErrors(errorsFor(draft, costFields), costFields)) return;
+      const errors = errorsFor(draft, costFields);
+      costFields.forEach((key) => { if ($(key).validity.badInput) errors[key] = '유효한 숫자를 입력해 주세요.'; });
+      if (!showErrors(errors, costFields)) return;
       if (!calculate(draft)) {
         $('calculation-error').textContent = '계산 가능한 범위를 벗어났습니다. 품목 금액과 인건비 입력값을 확인해 주세요.';
         return;
@@ -309,7 +317,7 @@
     $('result-items').replaceChildren();
     draft.items.forEach((item, index) => {
       const row = document.createElement('tr');
-      [item.name.trim(), item.unit.trim(), format(number(item.quantity)), money(number(item.unitPrice)), money(result.amounts[index])].forEach((value) => {
+      [isBlank(item.name) ? '미입력' : item.name.trim(), isBlank(item.unit) ? '미입력' : item.unit.trim(), isBlank(item.quantity) ? '미입력' : format(number(item.quantity)), isBlank(item.unitPrice) ? '미입력' : money(number(item.unitPrice)), money(result.amounts[index])].forEach((value) => {
         const cell = document.createElement('td');
         cell.textContent = value;
         row.append(cell);
@@ -320,7 +328,7 @@
       'total-cost': money(result.total), 'summary-material': money(result.materialCost),
       'summary-labor': money(result.laborCost),
       'material-subtotal': money(result.materialCost), 'labor-subtotal': money(result.laborCost),
-      'labor-equation': format(number(draft.workers)) + ' 명 × ' + format(number(draft.days)) + ' 일 × ' + money(number(draft.dailyWage))
+      'labor-equation': (isBlank(draft.workers) ? '미입력' : format(number(draft.workers)) + ' 명') + ' × ' + (isBlank(draft.days) ? '미입력' : format(number(draft.days)) + ' 일') + ' × ' + (isBlank(draft.dailyWage) ? '미입력' : money(number(draft.dailyWage)))
     };
     Object.entries(values).forEach(([id, value]) => { $(id).textContent = value; });
     return true;
