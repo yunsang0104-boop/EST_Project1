@@ -57,7 +57,7 @@
                   <button type="button" class="button secondary remove-item">삭제</button>
                 </div>
                 <div class="item-fields">
-                  <label>품목명<input data-field="name" type="text" maxlength="80" placeholder="예: 관수용 배관"></label>
+                  <label>품목명 (선택)<input data-field="name" type="text" maxlength="80" placeholder="예: 관수용 배관"></label>
                   <label>단위<input data-field="unit" type="text" maxlength="20" placeholder="예: m, 개, 식"></label>
                   <label>수량<input data-field="quantity" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 100"></label>
                   <label>단가 (원)<input data-field="unitPrice" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 600"></label>
@@ -67,7 +67,7 @@
               </div>
             </template>
             <div class="subtotal"><span>품목 합계</span><strong id="items-subtotal" role="status">—</strong></div>
-            <p class="field-help">모든 항목은 선택 입력입니다. 품목 금액 = 수량 × 단가 · 계산에 필요한 값이 비어 있으면 금액은 미입력으로 표시됩니다.</p>
+            <p class="field-help">품목명 없이도 다음 단계로 진행할 수 있습니다. 품목 금액 = 수량 × 단가 · 미입력 금액은 합계에서 제외됩니다.</p>
           </section>
           <section class="card labor-card">
             <div class="section-heading">

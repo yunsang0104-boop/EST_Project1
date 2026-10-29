@@ -156,12 +156,14 @@
     if (Object.keys(errorsFor(data, constructionFields.concat(costFields))).length) return null;
     if (!Array.isArray(data.items) || data.items.some((item) => Object.keys(itemErrors(item)).length)) return null;
     const amounts = data.items.map(itemAmount);
-    const materialCost = amounts.length && amounts.every((amount) => amount != null) ? amounts.reduce((sum, amount) => sum + amount, 0) : null;
+    // 미입력 품목 금액은 제외하고 계산할 수 있는 금액만 합산합니다.
+    const materialCost = amounts.reduce((sum, amount) => sum + (amount == null ? 0 : amount), 0);
     const laborCost = costFields.some((key) => isBlank(data[key])) ? null : number(data.workers) * number(data.days) * number(data.dailyWage);
-    const total = materialCost == null || laborCost == null ? null : materialCost + laborCost;
+    const total = materialCost + (laborCost == null ? 0 : laborCost);
+    const incomplete = !amounts.length || amounts.some((amount) => amount == null) || laborCost == null;
     // 극단적인 입력으로 발생한 무한대 및 계산 범위 초과를 차단합니다.
     if (![materialCost, laborCost, total].every((value) => value == null || (Number.isFinite(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER))) return null;
-    return { amounts, materialCost, laborCost, total };
+    return { amounts, materialCost, laborCost, total, incomplete };
   }
 
   function initConstruction() {
@@ -244,7 +246,7 @@
         row.querySelector('.item-amount').textContent = invalid ? '—' : money(amount);
         if (amount != null) sum += amount;
       });
-      $('items-subtotal').textContent = validItems && sum <= Number.MAX_SAFE_INTEGER ? completeItems ? money(sum) : '미입력' : '품목을 확인해 주세요.';
+      $('items-subtotal').textContent = validItems && sum <= Number.MAX_SAFE_INTEGER ? money(sum) + (completeItems ? '' : ' (미입력 금액 제외)') : '품목을 확인해 주세요.';
       return firstInvalid;
     }
     function renderItems() {
@@ -326,6 +328,7 @@
     });
     const values = {
       'total-cost': money(result.total), 'summary-material': money(result.materialCost),
+      'total-basis': result.incomplete ? '입력된 금액 기준 · 미입력 품목 금액과 인건비는 합계에서 제외됩니다.' : '품목 합계 + 인건비 합계',
       'summary-labor': money(result.laborCost),
       'material-subtotal': money(result.materialCost), 'labor-subtotal': money(result.laborCost),
       'labor-equation': (isBlank(draft.workers) ? '미입력' : format(number(draft.workers)) + ' 명') + ' × ' + (isBlank(draft.days) ? '미입력' : format(number(draft.days)) + ' 일') + ' × ' + (isBlank(draft.dailyWage) ? '미입력' : money(number(draft.dailyWage)))
