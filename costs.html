@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>자재 단가 및 인건비 입력 | 관수배관 견적</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/mock-data.js" defer>
+    </script>
+    <script src="js/app.js" defer>
+    </script>
+  </head>
+  <body data-page="costs">
+    <header class="site-header">
+      <div class="header-inner">
+        <span class="site-mark" aria-hidden="true">↗</span>
+        <p>시공 면적과 배관 조건을 입력하면 자재 물량, 자재비, 인건비를 자동 계산하는 웹서비스</p>
+        <span class="version">MVP · 시연용</span>
+      </div>
+    </header>
+    <main>
+      <ol class="steps" aria-label="견적 계산 단계">
+        <li class="complete">
+          <span>01</span> 시공 정보 입력</li>
+        <li aria-current="step">
+          <span>02</span> 단가 및 인건비</li>
+        <li>
+          <span>03</span> 자동 견적 결과</li>
+      </ol>
+      <div class="page-heading">
+        <p class="eyebrow">STEP 02 / 03</p>
+        <h1>적용할 비용을 설정하세요</h1>
+        <p>자재 단가를 확인하고 현장에 맞는 인건비 조건을 입력하세요.</p>
+      </div>
+      <div id="missing-state" class="card empty-state" hidden>
+        <h2>시공 정보를 먼저 입력해 주세요.</h2>
+        <p>면적, 배관 규격, 간격을 확인한 후 비용을 입력할 수 있습니다.</p>
+        <a class="button primary" href="index.html">시공 정보 입력으로</a>
+      </div>
+      <div id="costs-content" hidden>
+        <div class="condition-strip" id="construction-summary">
+        </div>
+        <form id="costs-form" novalidate>
+          <section class="card">
+            <div class="section-heading">
+              <h2>자재 단가</h2>
+              <span class="tag">Mock 자재 1종</span>
+            </div>
+            <div class="material-info">
+              <div>
+                <span class="muted">자재명</span>
+                <strong id="material-name">
+                </strong>
+              </div>
+              <div>
+                <span class="muted">규격</span>
+                <strong id="material-spec">
+                </strong>
+              </div>
+              <div>
+                <span class="muted">단위</span>
+                <strong>m</strong>
+              </div>
+            </div>
+            <div class="field">
+              <label for="unitPrice">자재 단가 <span class="unit-label">원/m</span>
+              </label>
+              <input id="unitPrice" name="unitPrice" type="number" min="0" step="any" inputmode="decimal" required aria-describedby="price-source unitPrice-error">
+              <p id="price-source" class="field-help">
+              </p>
+              <p class="field-error" id="unitPrice-error">
+              </p>
+            </div>
+            <p class="subtle-note">입력한 유효 단가는 규격별로 이 브라우저에 자동 저장됩니다. 예시 단가는 실제 가격이 아닙니다.</p>
+          </section>
+          <section class="card labor-card">
+            <div class="section-heading">
+              <h2>인건비 조건</h2>
+              <span class="muted">모든 항목 필수 · 0 입력 가능</span>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="workers">작업 인원 <span class="unit-label">명</span>
+                </label>
+                <input id="workers" name="workers" type="number" min="0" step="1" inputmode="numeric" placeholder="예: 2" required aria-describedby="workers-error">
+                <p class="field-error" id="workers-error">
+                </p>
+              </div>
+              <div class="field">
+                <label for="days">작업 일수 <span class="unit-label">일</span>
+                </label>
+                <input id="days" name="days" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 1.5" required aria-describedby="days-error">
+                <p class="field-error" id="days-error">
+                </p>
+              </div>
+              <div class="field">
+                <label for="dailyWage">1인당 일당 <span class="unit-label">원</span>
+                </label>
+                <input id="dailyWage" name="dailyWage" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 200000" required aria-describedby="dailyWage-error">
+                <p class="field-error" id="dailyWage-error">
+                </p>
+              </div>
+            </div>
+            <p class="subtle-note">예상 인건비 = 작업 인원 × 작업 일수 × 1인당 일당</p>
+          </section>
+          <p id="calculation-error" class="field-error" role="alert">
+          </p>
+          <div class="bottom-actions">
+            <a href="index.html" class="button secondary">← 이전</a>
+            <button type="submit" class="button primary">견적 계산 <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </form>
+      </div>
+      <p id="storage-status" class="storage-status" role="status">
+      </p>
+    </main>
+    <footer>현재 입력값은 이 탭에, 수정한 자재 단가는 이 브라우저에 보관됩니다.</footer>
+  </body>
+</html>
+
