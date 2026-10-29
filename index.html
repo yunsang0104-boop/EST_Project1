@@ -40,7 +40,7 @@
           </div>
           <form id="construction-form" novalidate>
             <div class="field">
-              <label for="estimateName">견적서 이름 <span class="unit-label">선택</span></label>
+              <label for="estimateName">사업명 <span class="unit-label">선택</span></label>
               <input id="estimateName" name="estimateName" type="text" maxlength="80" placeholder="예: 남쪽 농장 관수배관 시공" aria-describedby="estimateName-help">
               <p class="field-help" id="estimateName-help">최대 80자 · 비용 입력과 견적 결과에도 표시됩니다.</p>
             </div>
@@ -54,6 +54,25 @@
               <input id="farmAddress" name="farmAddress" type="text" maxlength="200" placeholder="농가의 소재지주소를 입력하세요" aria-describedby="farmAddress-help">
               <p class="field-help" id="farmAddress-help">최대 200자 · 상세주소까지 입력할 수 있습니다.</p>
             </div>
+            <fieldset class="budget-fields">
+              <legend>사업비</legend>
+              <p class="field-help">자부담금과 보조금을 입력하면 총사업비를 합산합니다. 선택 입력 항목입니다.</p>
+              <div class="field">
+                <label for="selfFunding">자부담금 <span class="unit-label">원</span></label>
+                <input id="selfFunding" name="selfFunding" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 2000000" aria-describedby="selfFunding-error">
+                <p class="field-error" id="selfFunding-error"></p>
+              </div>
+              <div class="field">
+                <label for="subsidy">보조금 <span class="unit-label">원</span></label>
+                <input id="subsidy" name="subsidy" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 8000000" aria-describedby="subsidy-error">
+                <p class="field-error" id="subsidy-error"></p>
+              </div>
+              <div class="subtotal">
+                <span>총사업비</span>
+                <strong id="budget-total" role="status">미입력</strong>
+              </div>
+              <p class="field-help">총사업비 = 자부담금 + 보조금 · 예상 시공 견적은 별도로 계산됩니다.</p>
+            </fieldset>
             <div class="field">
               <label for="area">시공 면적 <span class="unit-label">㎡</span>
               </label>

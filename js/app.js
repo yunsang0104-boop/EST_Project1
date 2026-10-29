@@ -5,7 +5,8 @@
   const mock = window.ESTIMATE_MOCK;
   const draftKey = 'irrigation-estimate-draft-v1';
   const priceKey = 'irrigation-material-prices-v1';
-  const constructionFields = ['area', 'spec', 'spacing'];
+  const fundingFields = ['selfFunding', 'subsidy'];
+  const constructionFields = ['area', 'spec', 'spacing'].concat(fundingFields);
   const constructionInputs = ['estimateName', 'farmName', 'farmAddress'].concat(constructionFields);
   const costFields = ['unitPrice', 'workers', 'days', 'dailyWage'];
   const $ = (id) => document.getElementById(id);
@@ -42,6 +43,11 @@
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : NaN;
   }
+  const isBlank = (value) => value == null || (typeof value === 'string' && value.trim() === '');
+  const fundingAmount = (data, key) => isBlank(data[key]) ? 0 : number(data[key]);
+  const budgetTotal = (data) => fundingFields.reduce((total, key) => total + fundingAmount(data, key), 0);
+  const hasFunding = (data) => fundingFields.some((key) => !isBlank(data[key]));
+
   function errorsFor(data, fields) {
     const errors = {};
     fields.forEach((key) => {
@@ -49,13 +55,18 @@
         if (!materialFor(data.spec)) errors.spec = '배관 규격을 선택해 주세요.';
         return;
       }
+      if (fundingFields.includes(key) && isBlank(data[key])) return;
       const value = number(data[key]);
       if (!Number.isFinite(value)) errors[key] = '유효한 숫자를 입력해 주세요.';
       else if (key === 'area' || key === 'spacing') {
         if (value <= 0) errors[key] = '0보다 큰 값을 입력해 주세요.';
       } else if (value < 0) errors[key] = '0 이상의 값을 입력해 주세요.';
       else if (key === 'workers' && !Number.isSafeInteger(value)) errors[key] = '작업 인원은 0 이상의 정수로 입력해 주세요.';
+      else if (fundingFields.includes(key) && value > Number.MAX_SAFE_INTEGER) errors[key] = '입력 가능한 금액 범위를 초과했습니다.';
     });
+    if (fundingFields.every((key) => fields.includes(key) && !errors[key]) && budgetTotal(data) > Number.MAX_SAFE_INTEGER) {
+      errors.subsidy = '총사업비가 계산 가능한 범위를 초과했습니다. 금액을 줄여 주세요.';
+    }
     return errors;
   }
   function showErrors(errors, fields) {
@@ -82,12 +93,15 @@
     const farmName = typeof draft.farmName === 'string' ? draft.farmName.trim().slice(0, 80) : '';
     const farmAddress = typeof draft.farmAddress === 'string' ? draft.farmAddress.trim().slice(0, 200) : '';
     const items = [
-      ['견적서 이름', estimateName || '이름 없는 견적'],
+      ['사업명', estimateName || '미입력'],
       ['농가명', farmName || '미입력'],
       ['소재지주소', farmAddress || '미입력'],
       ['시공 면적', format(number(draft.area)) + ' ㎡ (약 ' + pyeong(number(draft.area)) + ' 평)'],
       ['배관 규격', material.spec + ' (예시)'],
-      ['배관 간격', format(number(draft.spacing)) + ' m']
+      ['배관 간격', format(number(draft.spacing)) + ' m'],
+      ['총사업비', hasFunding(draft) ? money(budgetTotal(draft)) : '미입력'],
+      ['자부담금', isBlank(draft.selfFunding) ? '미입력' : money(number(draft.selfFunding))],
+      ['보조금', isBlank(draft.subsidy) ? '미입력' : money(number(draft.subsidy))]
     ];
     items.forEach(([label, value], index) => {
       const item = document.createElement('div');
@@ -136,16 +150,30 @@
     }
     populate(constructionInputs);
     updateAreaPreview();
+    function updateBudgetPreview() {
+      // number 입력창은 숫자로 완성되지 않은 입력도 빈 문자열로 반환할 수 있습니다.
+      const errors = errorsFor(draft, fundingFields);
+      fundingFields.forEach((key) => {
+        if ($(key).validity.badInput) errors[key] = '유효한 숫자를 입력해 주세요.';
+        $(key + '-error').textContent = errors[key] || '';
+        $(key).setAttribute('aria-invalid', errors[key] ? 'true' : 'false');
+      });
+      $('budget-total').textContent = Object.keys(errors).length ? '금액을 확인해 주세요.' : hasFunding(draft) ? money(budgetTotal(draft)) : '미입력';
+      return errors;
+    }
+    updateBudgetPreview();
     function persistConstruction() {
       collect(constructionInputs);
       updateAreaPreview();
+      updateBudgetPreview();
     }
     $('construction-form').addEventListener('input', persistConstruction);
     $('construction-form').addEventListener('change', persistConstruction);
     $('construction-form').addEventListener('submit', (event) => {
       event.preventDefault();
       const saved = collect(constructionInputs);
-      if (showErrors(errorsFor(draft, constructionFields), constructionFields) && saved) window.location.href = 'costs.html';
+      const errors = Object.assign(errorsFor(draft, constructionFields), updateBudgetPreview());
+      if (showErrors(errors, constructionFields) && saved) window.location.href = 'costs.html';
     });
   }
 
