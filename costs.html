@@ -66,7 +66,7 @@
                 <div class="subtotal"><span>품목 금액</span><strong class="item-amount">—</strong></div>
               </div>
             </template>
-            <div class="subtotal"><span>품목 합계</span><strong id="items-subtotal" role="status">—</strong></div>
+            <div class="subtotal"><span>자재비 합계</span><strong id="items-subtotal" role="status">—</strong></div>
             <p class="field-help">품목명 없이도 다음 단계로 진행할 수 있습니다. 품목 금액 = 수량 × 단가 · 미입력 금액은 합계에서 제외됩니다.</p>
           </section>
           <section class="card labor-card">
@@ -98,6 +98,9 @@
               </div>
             </div>
             <p class="subtle-note">예상 인건비 = 작업 인원 × 작업 일수 × 1인당 일당</p>
+            <div class="subtotal"><span>인건비 합계</span><strong id="labor-preview" role="status">미입력</strong></div>
+            <div class="subtotal"><span>자재비 + 인건비 합계</span><strong id="total-preview" role="status">0 원</strong></div>
+            <p class="field-help">입력한 금액으로 자동 계산하며, 미입력 금액은 합계에서 제외됩니다.</p>
           </section>
           <p id="calculation-error" class="field-error" role="alert">
           </p>

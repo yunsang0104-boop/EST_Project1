@@ -112,7 +112,7 @@
       ['총사업비', hasFunding(draft) ? money(budgetTotal(draft)) : '미입력'],
       ['자부담금 (40%)', hasFunding(draft) ? money(selfFunding(draft)) : '미입력'],
       ['보조금 (60%)', hasFunding(draft) ? money(subsidy(draft)) : '미입력'],
-      ['사업자', businessOperator || '미입력', 'text-summary'],
+      ['관공서', businessOperator || '미입력', 'text-summary'],
       ['상담내용', consultationNotes || '미입력', 'consultation-summary']
     ];
     items.forEach(([label, value, rowClass], index) => {
@@ -247,6 +247,9 @@
         if (amount != null) sum += amount;
       });
       $('items-subtotal').textContent = validItems && sum <= Number.MAX_SAFE_INTEGER ? money(sum) + (completeItems ? '' : ' (미입력 금액 제외)') : '품목을 확인해 주세요.';
+      const preview = validItems && !costFields.some((key) => $(key).validity.badInput) ? calculate(draft) : null;
+      $('labor-preview').textContent = preview ? money(preview.laborCost) : '입력값 확인';
+      $('total-preview').textContent = preview ? money(preview.total) : '입력값 확인';
       return firstInvalid;
     }
     function renderItems() {
@@ -328,7 +331,7 @@
     });
     const values = {
       'total-cost': money(result.total), 'summary-material': money(result.materialCost),
-      'total-basis': result.incomplete ? '입력된 금액 기준 · 미입력 품목 금액과 인건비는 합계에서 제외됩니다.' : '품목 합계 + 인건비 합계',
+      'total-basis': result.incomplete ? '자재비 + 인건비 · 미입력 금액은 합계에서 제외됩니다.' : '자재비 합계 + 인건비 합계',
       'summary-labor': money(result.laborCost),
       'material-subtotal': money(result.materialCost), 'labor-subtotal': money(result.laborCost),
       'labor-equation': (isBlank(draft.workers) ? '미입력' : format(number(draft.workers)) + ' 명') + ' × ' + (isBlank(draft.days) ? '미입력' : format(number(draft.days)) + ' 일') + ' × ' + (isBlank(draft.dailyWage) ? '미입력' : money(number(draft.dailyWage)))
