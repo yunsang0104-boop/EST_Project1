@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>회원가입 | 시공 견적</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="js/supabase-client.js" defer></script>
+    <script src="js/auth.js" defer></script>
+  </head>
+  <body data-page="signup" data-auth-state="loading">
+    <header class="site-header">
+      <div class="header-inner">
+        <span class="site-mark" aria-hidden="true">↗</span>
+        <p>사업 정보와 견적 품목을 입력하고 사업비, 인건비와 첨부 도면을 함께 관리하세요.</p>
+      </div>
+    </header>
+    <main class="auth-main">
+      <div class="page-heading">
+        <p class="eyebrow">시공 견적</p>
+        <h1>회원가입</h1>
+        <p>이메일과 비밀번호로 계정을 만들어 주세요.</p>
+      </div>
+      <section class="card">
+        <form id="auth-form" novalidate>
+          <div class="field">
+            <label for="email">이메일</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="example@email.com" required aria-describedby="email-error">
+            <p id="email-error" class="field-error"></p>
+          </div>
+          <div class="field">
+            <label for="password">비밀번호</label>
+            <input id="password" name="password" type="password" autocomplete="new-password" minlength="6" required aria-describedby="password-help password-error">
+            <p id="password-help" class="field-help">6자 이상 입력하세요. 프로젝트의 비밀번호 정책에 따라 추가 조건이 적용될 수 있습니다.</p>
+            <p id="password-error" class="field-error"></p>
+          </div>
+          <p id="auth-message" class="auth-message" role="status" aria-live="polite">로그인 상태를 확인하고 있습니다.</p>
+          <button id="auth-submit" class="button primary auth-submit" type="submit" disabled>회원가입</button>
+        </form>
+        <p class="auth-switch">이미 계정이 있나요? <a href="login.html">로그인</a></p>
+      </section>
+    </main>
+  </body>
+</html>

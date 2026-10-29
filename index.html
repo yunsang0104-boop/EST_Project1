@@ -7,13 +7,14 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="js/supabase-client.js" defer></script>
+    <script src="js/auth.js" defer></script>
     <script src="js/mock-data.js" defer>
     </script>
     <script src="js/app.js" defer>
     </script>
     <script src="js/attachments.js" defer></script>
   </head>
-  <body data-page="construction">
+  <body data-page="construction" data-auth-required="true" data-auth-state="loading">
     <header class="site-header">
       <div class="header-inner">
         <span class="site-mark" aria-hidden="true">↗</span>

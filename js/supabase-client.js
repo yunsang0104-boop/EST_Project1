@@ -20,11 +20,11 @@
 
   try {
     window.supabaseClient = window.supabase.createClient(projectUrl, publishableKey, {
-      // 아직 로그인을 구현하지 않으므로 인증 세션을 저장·갱신하지 않습니다.
+      // 새로고침·화면 이동 후에도 로그인 유지 및 만료된 토큰 자동 갱신.
       auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
       }
     });
   } catch (error) {

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>로그인 | 시공 견적</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="js/supabase-client.js" defer></script>
+    <script src="js/auth.js" defer></script>
+  </head>
+  <body data-page="login" data-auth-state="loading">
+    <header class="site-header">
+      <div class="header-inner">
+        <span class="site-mark" aria-hidden="true">↗</span>
+        <p>사업 정보와 견적 품목을 입력하고 사업비, 인건비와 첨부 도면을 함께 관리하세요.</p>
+      </div>
+    </header>
+    <main class="auth-main">
+      <div class="page-heading">
+        <p class="eyebrow">시공 견적</p>
+        <h1>로그인</h1>
+        <p>이메일과 비밀번호로 로그인해 견적 작성을 시작하세요.</p>
+      </div>
+      <section class="card">
+        <form id="auth-form" novalidate>
+          <div class="field">
+            <label for="email">이메일</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="example@email.com" required aria-describedby="email-error">
+            <p id="email-error" class="field-error"></p>
+          </div>
+          <div class="field">
+            <label for="password">비밀번호</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required aria-describedby="password-error">
+            <p id="password-error" class="field-error"></p>
+          </div>
+          <p id="auth-message" class="auth-message" role="status" aria-live="polite">로그인 상태를 확인하고 있습니다.</p>
+          <button id="auth-submit" class="button primary auth-submit" type="submit" disabled>로그인</button>
+        </form>
+        <p class="auth-switch">처음 이용하시나요? <a href="signup.html">회원가입</a></p>
+      </section>
+    </main>
+  </body>
+</html>
