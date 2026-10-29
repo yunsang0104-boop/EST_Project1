@@ -7,7 +7,7 @@
   const priceKey = 'irrigation-material-prices-v1';
   const fundingFields = ['totalBudget'];
   const constructionFields = ['area', 'spec', 'spacing'].concat(fundingFields);
-  const constructionInputs = ['estimateName', 'farmName', 'farmAddress'].concat(constructionFields);
+  const constructionInputs = ['estimateName', 'farmName', 'farmAddress', 'businessOperator', 'consultationNotes'].concat(constructionFields);
   const costFields = ['unitPrice', 'workers', 'days', 'dailyWage'];
   const $ = (id) => document.getElementById(id);
   const format = (value) => new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 }).format(value);
@@ -97,6 +97,8 @@
     const estimateName = typeof draft.estimateName === 'string' ? draft.estimateName.trim().slice(0, 80) : '';
     const farmName = typeof draft.farmName === 'string' ? draft.farmName.trim().slice(0, 80) : '';
     const farmAddress = typeof draft.farmAddress === 'string' ? draft.farmAddress.trim().slice(0, 200) : '';
+    const businessOperator = typeof draft.businessOperator === 'string' ? draft.businessOperator.trim().slice(0, 80) : '';
+    const consultationNotes = typeof draft.consultationNotes === 'string' ? draft.consultationNotes.trim().slice(0, 2000) : '';
     const items = [
       ['사업명', estimateName || '미입력'],
       ['농가명', farmName || '미입력'],
@@ -106,16 +108,19 @@
       ['배관 간격', format(number(draft.spacing)) + ' m'],
       ['총사업비', hasFunding(draft) ? money(budgetTotal(draft)) : '미입력'],
       ['자부담금 (40%)', hasFunding(draft) ? money(selfFunding(draft)) : '미입력'],
-      ['보조금 (60%)', hasFunding(draft) ? money(subsidy(draft)) : '미입력']
+      ['보조금 (60%)', hasFunding(draft) ? money(subsidy(draft)) : '미입력'],
+      ['사업자', businessOperator || '미입력', 'text-summary'],
+      ['상담내용', consultationNotes || '미입력', 'consultation-summary']
     ];
-    items.forEach(([label, value], index) => {
+    items.forEach(([label, value, rowClass], index) => {
       const item = document.createElement('div');
       if (index === 0) item.className = 'estimate-name-summary';
       if (index === 2) item.className = 'farm-address-summary';
+      if (rowClass) item.className = rowClass;
       const title = document.createElement('span');
       title.textContent = label;
       const content = document.createElement('strong');
-      content.className = index <= 2 ? 'estimate-name-value' : 'summary-value';
+      content.className = index <= 2 || rowClass ? 'estimate-name-value' : 'summary-value';
       content.textContent = value;
       item.append(title, content);
       container.append(item);

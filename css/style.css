@@ -40,7 +40,7 @@ body {
   overflow-wrap: anywhere;
 }
 
-button, input, select { font: inherit; }
+button, input, select, textarea { font: inherit; }
 a { color: inherit; }
 
 /* 상단 서비스명과 진행 단계 */
@@ -177,7 +177,7 @@ h2 { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.5; letter-spac
 .attachment-remove { margin-top: 12px; }
 .button:disabled { opacity: .55; cursor: wait; }
 .field label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 15px; font-weight: 650; }
-input, select {
+input, select, textarea {
   width: 100%;
   min-width: 0;
   min-height: 52px;
@@ -189,7 +189,8 @@ input, select {
   font-variant-numeric: tabular-nums;
   transition: border-color .15s ease, background-color .15s ease;
 }
-input::placeholder { color: var(--muted); opacity: 1; }
+textarea { resize: vertical; min-height: 150px; }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
 /* 숫자는 항목명과 구분하고, 인건비는 청색·자재비는 녹색으로 표시합니다. */
 input[type="number"], .numeric-preview, .summary-value {
   color: var(--number-material);
@@ -207,8 +208,11 @@ input[type="number"], .numeric-preview, .summary-value {
 .estimate-name-value { font-weight: 650; }
 .farm-address-summary { flex-basis: 100%; min-width: 0; }
 .farm-address-summary strong { overflow-wrap: anywhere; }
-input:hover, select:hover { border-color: var(--primary); }
-input:focus, select:focus {
+.text-summary, .consultation-summary { flex-basis: 100%; min-width: 0; }
+.consultation-summary > span { display: block; margin-bottom: 6px; }
+.consultation-summary > strong { display: block; white-space: pre-wrap; overflow-wrap: anywhere; font-weight: 400; }
+input:hover, select:hover, textarea:hover { border-color: var(--primary); }
+input:focus, select:focus, textarea:focus {
   border-color: var(--primary);
   outline: 2px solid var(--primary);
   outline-offset: 3px;
@@ -384,7 +388,7 @@ body[data-page="construction"] .primary span {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  input, select, .button { transition: none; }
+  input, select, textarea, .button { transition: none; }
 }
 
 /* 결과 견적서 인쇄 및 PDF 저장 */
@@ -460,6 +464,8 @@ body[data-page="construction"] .primary span {
   body[data-page="result"] .card,
   body[data-page="result"] .notice { break-inside: avoid; }
   body[data-page="result"] thead { display: table-header-group; }
+  body[data-page="result"] .condition-strip { break-inside: auto; }
+  body[data-page="result"] .consultation-summary > span { break-after: avoid; }
   body[data-page="result"] #result-attachments {
     break-inside: auto;
     break-before: page;
