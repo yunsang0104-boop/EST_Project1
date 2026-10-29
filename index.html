@@ -15,23 +15,23 @@
     <header class="site-header">
       <div class="header-inner">
         <span class="site-mark" aria-hidden="true">↗</span>
-        <p>시공 면적과 배관 조건을 입력하면 자재 물량, 자재비, 인건비를 자동 계산하는 웹서비스</p>
+        <p>사업 정보와 견적 품목을 입력하고 사업비, 인건비와 첨부 도면을 함께 관리하세요.</p>
         <span class="version">MVP · 시연용</span>
       </div>
     </header>
     <main>
-      <ol class="steps" aria-label="견적 계산 단계">123
+      <ol class="steps" aria-label="견적 작성 단계">
         <li aria-current="step">
           <span>01</span> 시공 정보 입력</li>
         <li>
-          <span>02</span> 단가 및 인건비</li>
+          <span>02</span> 견적서 작성</li>
         <li>
-          <span>03</span> 자동 견적 결과</li>
+          <span>03</span> 견적서 확인</li>
       </ol>
       <div class="page-heading">
         <p class="eyebrow">STEP 01 / 03</p>
         <h1>현장의 시공 정보를 입력하세요</h1>
-        <p>시공 면적과 배관 조건으로 필요한 예상 물량을 계산합니다.</p>
+        <p>사업 정보와 시공 면적을 입력하고 다음 단계에서 견적서를 작성하세요.</p>
       </div>
       <div class="input-layout">
         <section class="card">
@@ -91,23 +91,6 @@
               <p class="field-error" id="area-error">
               </p>
             </div>
-            <div class="field">
-              <label for="spec">배관 규격</label>
-              <select id="spec" name="spec" required aria-describedby="spec-help spec-error">
-                <option value="">배관 규격을 선택하세요</option>
-              </select>
-              <p class="field-help" id="spec-help">규격 목록은 화면 검증을 위한 Mock Data입니다.</p>
-              <p class="field-error" id="spec-error">
-              </p>
-            </div>
-            <div class="field">
-              <label for="spacing">배관 간격 <span class="unit-label">m</span>
-              </label>
-              <input id="spacing" name="spacing" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 1.5" required aria-describedby="spacing-help spacing-error">
-              <p class="field-help" id="spacing-help">배관 사이의 간격을 미터 단위로 입력하세요.</p>
-              <p class="field-error" id="spacing-error">
-              </p>
-            </div>
             <fieldset class="budget-fields">
               <legend>도면 첨부</legend>
               <p class="field-help" id="attachment-help">PNG, JPG, WEBP 이미지 · 각 10MB 이하 · 첨부한 이미지는 이 브라우저에 저장되며 견적서에도 출력됩니다.</p>
@@ -127,14 +110,14 @@
               </div>
             </fieldset>
             <div class="form-actions">
-              <span class="muted">다음 단계에서 비용을 입력합니다.</span>
+              <span class="muted">다음 단계에서 견적서를 작성합니다.</span>
               <button class="button primary" type="submit">다음 단계 <span aria-hidden="true">→</span>
               </button>
             </div>
           </form>
         </section>
         <aside class="side-panel">
-          <span class="tag">계산 기준 안내</span>
+          <span class="tag">견적 작성 안내</span>
           <h2>현장 조건에서<br>예상 견적까지</h2>
           <svg class="pipe-diagram" viewBox="0 0 280 170" role="img" aria-label="일정한 간격으로 배치된 배관의 개념도">
             <rect x="15" y="15" width="250" height="140" rx="12" fill="#e7efeb" stroke="#bed0c5" stroke-dasharray="5 5"/>
@@ -151,28 +134,28 @@
           <dl class="guide-list">
             <div>
               <dt>01</dt>
-              <dd>시공 면적 · 규격 · 간격 입력</dd>
+              <dd>사업 정보 · 시공 면적 · 도면 입력</dd>
             </div>
             <div>
               <dt>02</dt>
-              <dd>자재 단가 · 인건비 설정</dd>
+              <dd>견적 품목 · 수량 · 단가 · 인건비 입력</dd>
             </div>
             <div>
               <dt>03</dt>
-              <dd>예상 물량과 총견적 확인</dd>
+              <dd>견적서 확인 및 출력</dd>
             </div>
           </dl>
           <div class="notice">
-            <strong>시연용 임시 계산식</strong>
-            <p>예상 배관 길이(m) = 면적(㎡) ÷ 간격(m)</p>
-            <p>실제 시공 견적 전 산정식 검증이 필요합니다.</p>
+            <strong>직접 작성하는 견적서</strong>
+            <p>품목별 수량 × 단가에 인건비를 더해 총견적을 계산합니다.</p>
+            <p>사업비는 자부담금 40%, 보조금 60%로 표시됩니다.</p>
           </div>
         </aside>
       </div>
       <p id="storage-status" class="storage-status" role="status">
       </p>
     </main>
-    <footer>현재 입력값은 이 탭에, 수정한 자재 단가는 이 브라우저에 보관됩니다.</footer>
+    <footer>사업 정보와 작성 중인 견적서는 현재 브라우저 탭에 자동 저장됩니다.</footer>
   </body>
 </html>
 

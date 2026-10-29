@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>자재 단가 및 인건비 입력 | 관수배관 견적</title>
+    <title>견적서 작성 | 시공 견적</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="js/mock-data.js" defer>
     </script>
@@ -14,7 +14,7 @@
     <header class="site-header">
       <div class="header-inner">
         <span class="site-mark" aria-hidden="true">↗</span>
-        <p>시공 면적과 배관 조건을 입력하면 자재 물량, 자재비, 인건비를 자동 계산하는 웹서비스</p>
+        <p>사업 정보와 견적 품목을 입력하고 사업비, 인건비와 첨부 도면을 함께 관리하세요.</p>
         <span class="version">MVP · 시연용</span>
       </div>
     </header>
@@ -23,18 +23,18 @@
         <li class="complete">
           <span>01</span> 시공 정보 입력</li>
         <li aria-current="step">
-          <span>02</span> 단가 및 인건비</li>
+          <span>02</span> 견적서 작성</li>
         <li>
-          <span>03</span> 자동 견적 결과</li>
+          <span>03</span> 견적서 확인</li>
       </ol>
       <div class="page-heading">
         <p class="eyebrow">STEP 02 / 03</p>
-        <h1>적용할 비용을 설정하세요</h1>
-        <p>자재 단가를 확인하고 현장에 맞는 인건비 조건을 입력하세요.</p>
+        <h1>견적서를 작성하세요</h1>
+        <p>품목·단위·수량·단가를 직접 입력하세요. 품목 금액과 인건비를 합산합니다.</p>
       </div>
       <div id="missing-state" class="card empty-state" hidden>
         <h2>시공 정보를 먼저 입력해 주세요.</h2>
-        <p>면적, 배관 규격, 간격을 확인한 후 비용을 입력할 수 있습니다.</p>
+        <p>시공 면적과 사업 정보를 확인한 후 견적서를 작성할 수 있습니다.</p>
         <a class="button primary" href="index.html">시공 정보 입력으로</a>
       </div>
       <div id="costs-content" hidden>
@@ -43,35 +43,28 @@
         <form id="costs-form" novalidate>
           <section class="card">
             <div class="section-heading">
-              <h2>자재 단가</h2>
-              <span class="tag">Mock 자재 1종</span>
+              <h2>견적 품목</h2>
+              <button type="button" id="add-item" class="button secondary">+ 품목 추가</button>
             </div>
-            <div class="material-info">
-              <div>
-                <span class="muted">자재명</span>
-                <strong id="material-name">
-                </strong>
+            <div id="estimate-items"></div>
+            <template id="estimate-item-template">
+              <div class="estimate-item">
+                <div class="section-heading">
+                  <h3 class="item-heading"></h3>
+                  <button type="button" class="button secondary remove-item">삭제</button>
+                </div>
+                <div class="item-fields">
+                  <label>품목명<input data-field="name" type="text" maxlength="80" placeholder="예: 관수용 배관" required></label>
+                  <label>단위<input data-field="unit" type="text" maxlength="20" placeholder="예: m, 개, 식" required></label>
+                  <label>수량<input data-field="quantity" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 100" required></label>
+                  <label>단가 (원)<input data-field="unitPrice" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 600" required></label>
+                </div>
+                <p class="item-error field-error" role="alert"></p>
+                <div class="subtotal"><span>품목 금액</span><strong class="item-amount">—</strong></div>
               </div>
-              <div>
-                <span class="muted">규격</span>
-                <strong id="material-spec">
-                </strong>
-              </div>
-              <div>
-                <span class="muted">단위</span>
-                <strong>m</strong>
-              </div>
-            </div>
-            <div class="field">
-              <label for="unitPrice">자재 단가 <span class="unit-label">원/m</span>
-              </label>
-              <input id="unitPrice" name="unitPrice" type="number" min="0" step="any" inputmode="decimal" required aria-describedby="price-source unitPrice-error">
-              <p id="price-source" class="field-help">
-              </p>
-              <p class="field-error" id="unitPrice-error">
-              </p>
-            </div>
-            <p class="subtle-note">입력한 유효 단가는 규격별로 이 브라우저에 자동 저장됩니다. 예시 단가는 실제 가격이 아닙니다.</p>
+            </template>
+            <div class="subtotal"><span>품목 합계</span><strong id="items-subtotal" role="status">—</strong></div>
+            <p class="field-help">품목 금액 = 수량 × 단가 · 최소 1개 품목을 입력하세요. 인건비는 아래에서 별도로 입력합니다.</p>
           </section>
           <section class="card labor-card">
             <div class="section-heading">
@@ -107,7 +100,7 @@
           </p>
           <div class="bottom-actions">
             <a href="index.html" class="button secondary">← 이전</a>
-            <button type="submit" class="button primary">견적 계산 <span aria-hidden="true">→</span>
+            <button type="submit" class="button primary">견적서 확인 <span aria-hidden="true">→</span>
             </button>
           </div>
         </form>
@@ -115,7 +108,7 @@
       <p id="storage-status" class="storage-status" role="status">
       </p>
     </main>
-    <footer>현재 입력값은 이 탭에, 수정한 자재 단가는 이 브라우저에 보관됩니다.</footer>
+    <footer>사업 정보와 작성 중인 견적서는 현재 브라우저 탭에 자동 저장됩니다.</footer>
   </body>
 </html>
 

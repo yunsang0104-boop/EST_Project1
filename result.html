@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>자동 견적 결과 | 관수배관 견적</title>
+    <title>견적서 | 시공 견적</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="js/mock-data.js" defer>
     </script>
@@ -15,7 +15,7 @@
     <header class="site-header">
       <div class="header-inner">
         <span class="site-mark" aria-hidden="true">↗</span>
-        <p>시공 면적과 배관 조건을 입력하면 자재 물량, 자재비, 인건비를 자동 계산하는 웹서비스</p>
+        <p>사업 정보와 견적 품목을 입력하고 사업비, 인건비와 첨부 도면을 함께 관리하세요.</p>
         <span class="version">MVP · 시연용</span>
       </div>
     </header>
@@ -24,37 +24,34 @@
         <li class="complete">
           <span>01</span> 시공 정보 입력</li>
         <li class="complete">
-          <span>02</span> 단가 및 인건비</li>
+          <span>02</span> 견적서 작성</li>
         <li aria-current="step">
-          <span>03</span> 자동 견적 결과</li>
+          <span>03</span> 견적서 확인</li>
       </ol>
       <div class="page-heading">
         <p class="eyebrow">STEP 03 / 03</p>
-        <h1>자동 견적 결과</h1>
-        <p>입력한 견적 조건과 비용 기준으로 계산한 예상 금액입니다.</p>
+        <h1>견적서</h1>
+        <p>직접 입력한 품목별 수량·단가와 인건비를 합산한 견적입니다.</p>
       </div>
       <div id="missing-state" class="card empty-state" hidden>
         <h2>견적에 필요한 입력값을 확인해 주세요.</h2>
         <p>작업 데이터가 없거나 유효하지 않습니다. 시공 정보 입력부터 다시 진행해 주세요.</p>
         <a class="button primary" href="index.html">시공 정보 입력으로</a>
+        <a class="button secondary" href="costs.html">견적서 수정으로</a>
       </div>
       <div id="result-content" hidden>
-        <div class="notice result-notice">
-          <strong>임시 계산 기준에 따른 예상치 / 실제 시공 견적 전 산정식 검증 필요</strong>
-          <p>시연용 Mock 계산식: 예상 배관 길이(m) = 시공 면적(㎡) ÷ 배관 간격(m). 실제 계약용 견적이 아닙니다.</p>
-        </div>
         <div class="condition-strip" id="construction-summary">
         </div>
         <section class="total-card">
           <div>
-            <p>예상 총견적 금액</p>
+            <p>총견적 금액</p>
             <h2 id="total-cost">
             </h2>
-            <span>자재비 합계 + 인건비 합계</span>
+            <span>품목 합계 + 인건비 합계</span>
           </div>
           <dl>
             <div>
-              <dt>자재비 합계</dt>
+              <dt>품목 합계</dt>
               <dd id="summary-material">
               </dd>
             </div>
@@ -67,45 +64,25 @@
         </section>
         <section class="card">
           <div class="section-heading">
-            <h2>예상 자재 물량 및 자재비</h2>
-            <span class="tag">Mock 배관 자재 1종</span>
-          </div>
-          <div class="quantity-summary">
-            <span>예상 배관 길이</span>
-            <strong id="pipe-length">
-            </strong>
-            <span class="muted">배관 자재 수량에 동일 적용</span>
+            <h2>견적 내역</h2>
           </div>
           <div class="table-scroll">
-            <table>
-              <caption class="sr-only">규격별 자재 단가, 예상 수량 및 금액</caption>
+            <table class="estimate-table">
+              <caption class="sr-only">견적 품목별 단위, 수량, 단가 및 금액</caption>
               <thead>
                 <tr>
-                  <th scope="col">자재명</th>
-                  <th scope="col">규격</th>
+                  <th scope="col">품목명</th>
+                  <th scope="col">단위</th>
+                  <th scope="col">수량</th>
                   <th scope="col">단가</th>
-                  <th scope="col">예상 수량</th>
                   <th scope="col">금액</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td id="result-material-name">
-                  </td>
-                  <td id="result-spec">
-                  </td>
-                  <td id="result-price">
-                  </td>
-                  <td id="result-quantity">
-                  </td>
-                  <td id="material-cost">
-                  </td>
-                </tr>
-              </tbody>
+              <tbody id="result-items"></tbody>
             </table>
           </div>
           <div class="subtotal">
-            <span>자재비 합계</span>
+            <span>품목 합계</span>
             <strong id="material-subtotal">
             </strong>
           </div>
@@ -131,7 +108,7 @@
         <div class="bottom-actions result-actions">
           <div>
             <a href="index.html" class="button secondary">시공 정보 수정</a>
-            <a href="costs.html" class="button secondary">단가·인건비 수정</a>
+            <a href="costs.html" class="button secondary">견적서 수정</a>
           </div>
           <div>
             <button type="button" id="recalculate" class="button secondary">다시 계산 <span aria-hidden="true">↻</span>
@@ -145,7 +122,7 @@
       <p id="storage-status" class="storage-status" role="status">
       </p>
     </main>
-    <footer>현재 입력값은 이 탭에, 수정한 자재 단가는 이 브라우저에 보관됩니다.</footer>
+    <footer>사업 정보와 작성 중인 견적서는 현재 브라우저 탭에 자동 저장됩니다.</footer>
   </body>
 </html>
 
