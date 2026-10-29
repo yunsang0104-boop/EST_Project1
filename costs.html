@@ -10,7 +10,7 @@
     <script src="js/auth.js" defer></script>
     <script src="js/mock-data.js" defer>
     </script>
-    <script src="js/app.js?v=20261029-optional-fields" defer>
+    <script src="js/app.js?v=20261029-specification" defer>
     </script>
   </head>
   <body data-page="costs" data-auth-required="true" data-auth-state="loading">
@@ -58,6 +58,7 @@
                 </div>
                 <div class="item-fields">
                   <label>품목명 (선택)<input data-field="name" type="text" maxlength="80" placeholder="예: 관수용 배관"></label>
+                  <label>규격 (선택)<input data-field="specification" type="text" maxlength="80" placeholder="예: 20 mm"></label>
                   <label>단위<input data-field="unit" type="text" maxlength="20" placeholder="예: m, 개, 식"></label>
                   <label>수량<input data-field="quantity" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 100"></label>
                   <label>단가 (원)<input data-field="unitPrice" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 600"></label>

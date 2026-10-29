@@ -6,8 +6,8 @@
   const constructionFields = ['area'].concat(fundingFields);
   const constructionInputs = ['estimateName', 'farmName', 'farmAddress', 'businessOperator', 'consultationNotes'].concat(constructionFields);
   const costFields = ['workers', 'days', 'dailyWage'];
-  const itemFields = ['name', 'unit', 'quantity', 'unitPrice'];
-  const emptyItem = () => ({ name: '', unit: '개', quantity: '', unitPrice: '' });
+  const itemFields = ['name', 'specification', 'unit', 'quantity', 'unitPrice'];
+  const emptyItem = () => ({ name: '', specification: '', unit: '개', quantity: '', unitPrice: '' });
   const $ = (id) => document.getElementById(id);
   const format = (value) => new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 }).format(value);
   const money = (value) => value == null ? '미입력' : format(value) + ' 원';
@@ -58,7 +58,7 @@
       const material = window.ESTIMATE_MOCK && window.ESTIMATE_MOCK.materials.find((item) => item.id === data.spec);
       const quantity = number(data.area) / number(data.spacing);
       if (material && quantity > 0 && Number.isFinite(quantity) && number(data.unitPrice) >= 0) {
-        data.items = [{ name: material.name, unit: material.unit, quantity: String(quantity), unitPrice: String(data.unitPrice) }];
+        data.items = [{ name: material.name, specification: material.spec, unit: material.unit, quantity: String(quantity), unitPrice: String(data.unitPrice) }];
       }
     }
     return data;
@@ -138,6 +138,7 @@
     const errors = {};
     if (!item || typeof item !== 'object') return { name: '품목 정보를 확인해 주세요.' };
     if (!isBlank(item.name) && (typeof item.name !== 'string' || item.name.length > 80)) errors.name = '품목명을 80자 이내로 입력해 주세요.';
+    if (!isBlank(item.specification) && (typeof item.specification !== 'string' || item.specification.length > 80)) errors.specification = '규격을 80자 이내로 입력해 주세요.';
     if (!isBlank(item.unit) && (typeof item.unit !== 'string' || item.unit.length > 20)) errors.unit = '단위를 20자 이내로 입력해 주세요.';
     const quantity = number(item.quantity);
     const price = number(item.unitPrice);
@@ -322,7 +323,7 @@
     $('result-items').replaceChildren();
     draft.items.forEach((item, index) => {
       const row = document.createElement('tr');
-      [isBlank(item.name) ? '미입력' : item.name.trim(), isBlank(item.unit) ? '미입력' : item.unit.trim(), isBlank(item.quantity) ? '미입력' : format(number(item.quantity)), isBlank(item.unitPrice) ? '미입력' : money(number(item.unitPrice)), money(result.amounts[index])].forEach((value) => {
+      [isBlank(item.name) ? '미입력' : item.name.trim(), isBlank(item.specification) ? '미입력' : item.specification.trim(), isBlank(item.unit) ? '미입력' : item.unit.trim(), isBlank(item.quantity) ? '미입력' : format(number(item.quantity)), isBlank(item.unitPrice) ? '미입력' : money(number(item.unitPrice)), money(result.amounts[index])].forEach((value) => {
         const cell = document.createElement('td');
         cell.textContent = value;
         row.append(cell);

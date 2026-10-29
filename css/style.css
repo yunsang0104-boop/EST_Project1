@@ -179,14 +179,16 @@ h2 { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.5; letter-spac
 .estimate-item { padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: var(--control-radius); }
 .estimate-item .section-heading { margin-bottom: 16px; }
 .item-heading { margin: 0; font-size: 16px; }
-.item-fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, .8fr) minmax(0, 1fr) minmax(0, 1.2fr); gap: 16px; }
+.item-fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, .7fr) minmax(0, .8fr) minmax(0, 1.2fr); gap: 16px; }
 .item-fields label { min-width: 0; font-size: 13px; font-weight: 650; }
 .item-fields input { display: block; margin-top: 8px; }
 .item-amount, #items-subtotal { color: var(--number-material); }
 .estimate-table { white-space: normal; }
-.estimate-table th:first-child { width: 32%; }
+.estimate-table th:first-child { width: 26%; }
+.estimate-table th:nth-child(2) { width: 18%; }
 .estimate-table td { overflow-wrap: anywhere; }
 .estimate-table td:not(:first-child) { color: var(--number-material); }
+.estimate-table td:nth-child(2) { color: var(--text); }
 @media (max-width: 760px) {
   .item-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .item-fields label:first-child { grid-column: 1 / -1; }
@@ -482,7 +484,7 @@ body[data-page="construction"] .primary span {
   body[data-page="result"] thead { display: table-header-group; }
   body[data-page="result"] .condition-strip { break-inside: auto; }
   body[data-page="result"] .consultation-summary > span { break-after: avoid; }
-  body[data-page="result"] .estimate-table th:first-child { width: 32%; }
+  body[data-page="result"] .estimate-table th:first-child { width: 26%; }
   body[data-page="result"] #result-content > .card:has(.estimate-table) { break-inside: auto; }
   body[data-page="result"] .estimate-table tr { break-inside: avoid; }
   body[data-page="result"] #result-attachments {
