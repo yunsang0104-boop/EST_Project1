@@ -13,6 +13,7 @@
     <script src="js/app.js" defer>
     </script>
     <script src="js/attachments.js" defer></script>
+    <script src="js/print-preview.js" defer></script>
   </head>
   <body data-page="result" data-auth-required="true" data-auth-state="loading">
     <header class="site-header">
@@ -116,7 +117,7 @@
           <div>
             <button type="button" id="recalculate" class="button secondary">다시 계산 <span aria-hidden="true">↻</span>
             </button>
-            <button type="button" id="print-estimate" class="button primary">견적서 출력</button>
+            <button type="button" id="print-estimate" class="button primary">출력 미리보기</button>
           </div>
         </div>
         <p id="result-status" class="storage-status" role="status">
@@ -125,6 +126,22 @@
       <p id="storage-status" class="storage-status" role="status">
       </p>
     </main>
+    <dialog id="print-preview" class="print-preview" aria-labelledby="preview-title">
+      <div class="preview-toolbar">
+        <div>
+          <h2 id="preview-title">출력 미리보기</h2>
+          <p>A4 너비 기준입니다. 실제 페이지 나눔은 인쇄 설정에 따라 달라질 수 있습니다.</p>
+        </div>
+        <div class="preview-actions">
+          <button type="button" id="close-preview" class="button secondary" autofocus>견적서로 돌아가기</button>
+          <button type="button" id="confirm-print" class="button primary" disabled>출력하기</button>
+        </div>
+      </div>
+      <p id="preview-status" class="field-help" role="status"></p>
+      <div class="preview-stage">
+        <iframe id="preview-frame" title="견적서 인쇄 내용 미리보기"></iframe>
+      </div>
+    </dialog>
     <footer>사업 정보와 작성 중인 견적서는 현재 브라우저 탭에 자동 저장됩니다.</footer>
   </body>
 </html>

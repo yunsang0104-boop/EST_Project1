@@ -350,7 +350,10 @@
     });
     $('print-estimate').addEventListener('click', async () => {
       if (window.estimateAttachmentsReady && !await window.estimateAttachmentsReady) return;
-      if (renderResult()) window.print();
+      if (renderResult()) {
+        if (window.estimatePrintPreview) window.estimatePrintPreview.open();
+        else $('result-status').textContent = '미리보기를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.';
+      }
     });
   }
   // 브라우저 뒤로/앞으로 이동 시 캐시된 화면도 최신 작업값으로 갱신합니다.
