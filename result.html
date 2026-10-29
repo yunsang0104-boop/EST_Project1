@@ -131,6 +131,13 @@
         <div>
           <h2 id="preview-title">출력 미리보기</h2>
           <p>A4 너비 기준입니다. 실제 페이지 나눔은 인쇄 설정에 따라 달라질 수 있습니다.</p>
+          <label class="preview-selection" for="preview-type">출력할 내용
+            <select id="preview-type">
+              <option value="all">전체 (견적 조건 + 견적서)</option>
+              <option value="conditions">견적 조건만</option>
+              <option value="estimate">견적서만</option>
+            </select>
+          </label>
         </div>
         <div class="preview-actions">
           <button type="button" id="close-preview" class="button secondary" autofocus>견적서로 돌아가기</button>

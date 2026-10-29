@@ -530,6 +530,8 @@ body.preview-open { overflow: hidden; }
 .preview-toolbar { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
 .preview-toolbar p { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
 .preview-actions { display: flex; flex-shrink: 0; gap: 12px; }
+.preview-selection { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-top: 12px; font-size: 13px; font-weight: 650; }
+.preview-selection select { width: auto; max-width: 100%; min-height: 42px; padding: 8px 12px; font-size: 13px; }
 #preview-status { padding: 0 24px; margin: 16px 0; }
 .preview-stage { overflow-x: auto; padding: 0 20px 24px; }
 #preview-frame { display: block; width: 210mm; min-height: 297mm; margin: auto; border: 1px solid var(--border); background: var(--surface); }
