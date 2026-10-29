@@ -6,10 +6,13 @@
   const draftKey = 'irrigation-estimate-draft-v1';
   const priceKey = 'irrigation-material-prices-v1';
   const constructionFields = ['area', 'spec', 'spacing'];
+  const constructionInputs = ['estimateName'].concat(constructionFields);
   const costFields = ['unitPrice', 'workers', 'days', 'dailyWage'];
   const $ = (id) => document.getElementById(id);
   const format = (value) => new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 }).format(value);
   const money = (value) => format(value) + ' 원';
+  // 1평 = 400/121 ㎡. 표시만 환산하며 물량·비용 계산에는 입력한 ㎡를 사용합니다.
+  const pyeong = (area) => format(area * 121 / 400);
   let storageFailed = false;
 
   function storageNotice() {
@@ -75,11 +78,22 @@
     const material = materialFor(draft.spec);
     const container = $('construction-summary');
     container.replaceChildren();
-    [['시공 면적', format(number(draft.area)) + ' ㎡'], ['배관 규격', material.spec + ' (예시)'], ['배관 간격', format(number(draft.spacing)) + ' m']].forEach(([label, value]) => {
+    const estimateName = typeof draft.estimateName === 'string' ? draft.estimateName.trim().slice(0, 80) : '';
+    const items = [
+      ['견적서 이름', estimateName || '이름 없는 견적'],
+      ['시공 면적', format(number(draft.area)) + ' ㎡ (약 ' + pyeong(number(draft.area)) + ' 평)'],
+      ['배관 규격', material.spec + ' (예시)'],
+      ['배관 간격', format(number(draft.spacing)) + ' m']
+    ];
+    items.forEach(([label, value], index) => {
       const item = document.createElement('div');
+      if (index === 0) item.className = 'estimate-name-summary';
       const title = document.createElement('span');
       title.textContent = label;
-      item.append(title, document.createTextNode(value));
+      const content = document.createElement('strong');
+      content.className = index === 0 ? 'estimate-name-value' : 'summary-value';
+      content.textContent = value;
+      item.append(title, content);
       container.append(item);
     });
   }
@@ -107,12 +121,25 @@
       option.textContent = item.spec + ' · 예시 규격';
       $('spec').append(option);
     });
-    populate(constructionFields);
-    $('construction-form').addEventListener('input', () => collect(constructionFields));
-    $('construction-form').addEventListener('change', () => collect(constructionFields));
+    function updateAreaPreview() {
+      const area = number($('area').value);
+      const valid = Number.isFinite(area) && area > 0;
+      $('area-pyeong').textContent = valid
+        ? '약 ' + pyeong(area) + ' 평 (1평 ≈ 3.3058 ㎡ · 소수점 최대 2자리 반올림)'
+        : '면적을 입력하면 평수도 함께 표시됩니다. (1평 ≈ 3.3058 ㎡)';
+      $('area-pyeong').classList.toggle('numeric-preview', valid);
+    }
+    populate(constructionInputs);
+    updateAreaPreview();
+    function persistConstruction() {
+      collect(constructionInputs);
+      updateAreaPreview();
+    }
+    $('construction-form').addEventListener('input', persistConstruction);
+    $('construction-form').addEventListener('change', persistConstruction);
     $('construction-form').addEventListener('submit', (event) => {
       event.preventDefault();
-      const saved = collect(constructionFields);
+      const saved = collect(constructionInputs);
       if (showErrors(errorsFor(draft, constructionFields), constructionFields) && saved) window.location.href = 'costs.html';
     });
   }

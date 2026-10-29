@@ -19,7 +19,7 @@
       </div>
     </header>
     <main>
-      <ol class="steps" aria-label="견적 계산 단계">
+      <ol class="steps" aria-label="견적 계산 단계">123
         <li aria-current="step">
           <span>01</span> 시공 정보 입력</li>
         <li>
@@ -36,13 +36,19 @@
         <section class="card">
           <div class="section-heading">
             <h2>시공 조건</h2>
-            <span class="muted">모든 항목 필수</span>
+            <span class="muted">시공 조건 필수</span>
           </div>
           <form id="construction-form" novalidate>
             <div class="field">
+              <label for="estimateName">견적서 이름 <span class="unit-label">선택</span></label>
+              <input id="estimateName" name="estimateName" type="text" maxlength="80" placeholder="예: 남쪽 농장 관수배관 시공" aria-describedby="estimateName-help">
+              <p class="field-help" id="estimateName-help">최대 80자 · 비용 입력과 견적 결과에도 표시됩니다.</p>
+            </div>
+            <div class="field">
               <label for="area">시공 면적 <span class="unit-label">㎡</span>
               </label>
-              <input id="area" name="area" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 1,000" required aria-describedby="area-error">
+              <input id="area" name="area" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 1,000" required aria-describedby="area-pyeong area-error">
+              <p class="field-help" id="area-pyeong" role="status">면적을 입력하면 평수도 함께 표시됩니다. (1평 ≈ 3.3058 ㎡)</p>
               <p class="field-error" id="area-error">
               </p>
             </div>

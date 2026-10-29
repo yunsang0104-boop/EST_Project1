@@ -19,6 +19,9 @@
   --accent-text: #685022;
   --accent-border: #e6d3a3;
   --error: #ad3232;
+  --number-material: #286348;
+  --number-labor: #285d85;
+  --number-total: #f3d38b;
   --radius: 12px;
   --control-radius: 8px;
 }
@@ -167,6 +170,21 @@ input, select {
   transition: border-color .15s ease, background-color .15s ease;
 }
 input::placeholder { color: var(--muted); opacity: 1; }
+/* 숫자는 항목명과 구분하고, 인건비는 청색·자재비는 녹색으로 표시합니다. */
+input[type="number"], .numeric-preview, .summary-value {
+  color: var(--number-material);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+#workers, #days, #dailyWage, #labor-subtotal, #labor-equation {
+  color: var(--number-labor);
+}
+#result-price, #result-quantity, #material-cost, #material-subtotal {
+  color: var(--number-material);
+}
+#total-cost { color: var(--number-total); }
+.estimate-name-summary { flex-basis: 100%; }
+.estimate-name-value { font-weight: 650; }
 input:hover, select:hover { border-color: var(--primary); }
 input:focus, select:focus {
   border-color: var(--primary);
