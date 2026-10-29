@@ -40,7 +40,7 @@
         <section class="card">
           <div class="section-heading">
             <h2>견적 조건</h2>
-            <span class="muted">견적 조건 필수</span>
+            <span class="muted">모든 항목 선택 입력</span>
           </div>
           <form id="construction-form" novalidate>
             <div class="field">
@@ -87,9 +87,9 @@
               <p class="field-help">예상 시공 견적은 별도로 계산됩니다.</p>
             </fieldset>
             <div class="field">
-              <label for="area">시공 면적 <span class="unit-label">㎡</span>
+              <label for="area">시공 면적 <span class="unit-label">㎡ · 선택</span>
               </label>
-              <input id="area" name="area" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 1,000" required aria-describedby="area-pyeong area-error">
+              <input id="area" name="area" type="number" min="0" step="any" inputmode="decimal" placeholder="예: 1,000" aria-describedby="area-pyeong area-error">
               <p class="field-help" id="area-pyeong" role="status">면적을 입력하면 평수도 함께 표시됩니다. (1평 ≈ 3.3058 ㎡)</p>
               <p class="field-error" id="area-error">
               </p>

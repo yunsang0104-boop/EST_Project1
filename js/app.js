@@ -68,7 +68,8 @@
   function errorsFor(data, fields) {
     const errors = {};
     fields.forEach((key) => {
-      if (fundingFields.includes(key) && isBlank(data[key])) return;
+      // 1단계 항목은 선택 입력입니다. 입력한 숫자의 유효성은 유지합니다.
+      if (constructionFields.includes(key) && isBlank(data[key])) return;
       const value = number(data[key]);
       if (!Number.isFinite(value)) errors[key] = '유효한 숫자를 입력해 주세요.';
       else if (key === 'area') {
@@ -107,7 +108,7 @@
       ['사업명', estimateName || '미입력'],
       ['농가명', farmName || '미입력'],
       ['소재지주소', farmAddress || '미입력'],
-      ['시공 면적', format(number(draft.area)) + ' ㎡ (약 ' + pyeong(number(draft.area)) + ' 평)'],
+      ['시공 면적', isBlank(draft.area) ? '미입력' : format(number(draft.area)) + ' ㎡ (약 ' + pyeong(number(draft.area)) + ' 평)'],
       ['총사업비', hasFunding(draft) ? money(budgetTotal(draft)) : '미입력'],
       ['자부담금 (40%)', hasFunding(draft) ? money(selfFunding(draft)) : '미입력'],
       ['보조금 (60%)', hasFunding(draft) ? money(subsidy(draft)) : '미입력'],
@@ -194,6 +195,7 @@
       event.preventDefault();
       const saved = collect(constructionInputs);
       const errors = Object.assign(errorsFor(draft, constructionFields), updateBudgetPreview());
+      if ($('area').validity.badInput) errors.area = '유효한 숫자를 입력해 주세요.';
       if (showErrors(errors, constructionFields) && saved) window.location.href = 'costs.html';
     });
   }
