@@ -1,14 +1,13 @@
-/* 화면 이동과 입력 처리는 이 파일에서 관리합니다.
- * Mock 물량 산정식은 mock-data.js의 calculateQuantity에서 교체할 수 있습니다. */
+/* 사업 정보, 직접 작성한 견적 품목과 인건비를 관리합니다. */
 (function () {
   'use strict';
-  const mock = window.ESTIMATE_MOCK;
   const draftKey = 'irrigation-estimate-draft-v1';
-  const priceKey = 'irrigation-material-prices-v1';
   const fundingFields = ['totalBudget'];
-  const constructionFields = ['area', 'spec', 'spacing'].concat(fundingFields);
+  const constructionFields = ['area'].concat(fundingFields);
   const constructionInputs = ['estimateName', 'farmName', 'farmAddress', 'businessOperator', 'consultationNotes'].concat(constructionFields);
-  const costFields = ['unitPrice', 'workers', 'days', 'dailyWage'];
+  const costFields = ['workers', 'days', 'dailyWage'];
+  const itemFields = ['name', 'unit', 'quantity', 'unitPrice'];
+  const emptyItem = () => ({ name: '', unit: '개', quantity: '', unitPrice: '' });
   const $ = (id) => document.getElementById(id);
   const format = (value) => new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 }).format(value);
   const money = (value) => format(value) + ' 원';
@@ -34,8 +33,6 @@
     catch (error) { storageFailed = true; storageNotice(); return false; }
   }
   let draft = readStorage('sessionStorage', draftKey);
-  let prices = readStorage('localStorage', priceKey);
-  const materialFor = (spec) => mock.materials.find((item) => item.id === spec);
 
   function number(value) {
     if (typeof value !== 'string' && typeof value !== 'number') return NaN;
@@ -55,18 +52,26 @@
     return data;
   }
   migrateBudget(draft);
+  // 이전 견적의 계산된 수량과 단가를 직접 편집할 수 있는 품목으로 옮깁니다.
+  function migrateItems(data) {
+    if (!Array.isArray(data.items)) {
+      const material = window.ESTIMATE_MOCK && window.ESTIMATE_MOCK.materials.find((item) => item.id === data.spec);
+      const quantity = number(data.area) / number(data.spacing);
+      if (material && quantity > 0 && Number.isFinite(quantity) && number(data.unitPrice) >= 0) {
+        data.items = [{ name: material.name, unit: material.unit, quantity: String(quantity), unitPrice: String(data.unitPrice) }];
+      }
+    }
+    return data;
+  }
+  migrateItems(draft);
 
   function errorsFor(data, fields) {
     const errors = {};
     fields.forEach((key) => {
-      if (key === 'spec') {
-        if (!materialFor(data.spec)) errors.spec = '배관 규격을 선택해 주세요.';
-        return;
-      }
       if (fundingFields.includes(key) && isBlank(data[key])) return;
       const value = number(data[key]);
       if (!Number.isFinite(value)) errors[key] = '유효한 숫자를 입력해 주세요.';
-      else if (key === 'area' || key === 'spacing') {
+      else if (key === 'area') {
         if (value <= 0) errors[key] = '0보다 큰 값을 입력해 주세요.';
       } else if (value < 0) errors[key] = '0 이상의 값을 입력해 주세요.';
       else if (key === 'workers' && !Number.isSafeInteger(value)) errors[key] = '작업 인원은 0 이상의 정수로 입력해 주세요.';
@@ -91,7 +96,6 @@
     fields.forEach((key) => { $(key).value = draft[key] == null ? '' : draft[key]; });
   }
   function summary() {
-    const material = materialFor(draft.spec);
     const container = $('construction-summary');
     container.replaceChildren();
     const estimateName = typeof draft.estimateName === 'string' ? draft.estimateName.trim().slice(0, 80) : '';
@@ -104,8 +108,6 @@
       ['농가명', farmName || '미입력'],
       ['소재지주소', farmAddress || '미입력'],
       ['시공 면적', format(number(draft.area)) + ' ㎡ (약 ' + pyeong(number(draft.area)) + ' 평)'],
-      ['배관 규격', material.spec + ' (예시)'],
-      ['배관 간격', format(number(draft.spacing)) + ' m'],
       ['총사업비', hasFunding(draft) ? money(budgetTotal(draft)) : '미입력'],
       ['자부담금 (40%)', hasFunding(draft) ? money(selfFunding(draft)) : '미입력'],
       ['보조금 (60%)', hasFunding(draft) ? money(subsidy(draft)) : '미입력'],
@@ -131,25 +133,33 @@
     $(id).hidden = !valid;
   }
 
-  // 숫자 검증과 계산을 공통 관리하며 표시용 반올림은 계산에 적용하지 않습니다.
+  function itemErrors(item) {
+    const errors = {};
+    if (!item || typeof item !== 'object') return { name: '품목 정보를 확인해 주세요.' };
+    if (typeof item.name !== 'string' || !item.name.trim() || item.name.length > 80) errors.name = '품목명을 80자 이내로 입력해 주세요.';
+    if (typeof item.unit !== 'string' || !item.unit.trim() || item.unit.length > 20) errors.unit = '단위를 20자 이내로 입력해 주세요.';
+    const quantity = number(item.quantity);
+    const price = number(item.unitPrice);
+    if (!Number.isFinite(quantity) || quantity <= 0 || quantity > Number.MAX_SAFE_INTEGER) errors.quantity = '수량은 계산 가능한 범위의 0보다 큰 숫자로 입력해 주세요.';
+    if (!Number.isFinite(price) || price < 0 || price > Number.MAX_SAFE_INTEGER) errors.unitPrice = '단가는 계산 가능한 범위의 0 이상 숫자로 입력해 주세요.';
+    if (!Object.keys(errors).length && (!Number.isFinite(quantity * price) || quantity * price > Number.MAX_SAFE_INTEGER)) errors.unitPrice = '품목 금액이 계산 가능한 범위를 초과했습니다.';
+    return errors;
+  }
+
+  // 화면과 인쇄에서 같은 수량 × 단가 합산 결과를 사용합니다.
   function calculate(data) {
     if (Object.keys(errorsFor(data, constructionFields.concat(costFields))).length) return null;
-    const quantity = mock.calculateQuantity(number(data.area), number(data.spacing));
-    const materialCost = quantity * number(data.unitPrice);
+    if (!Array.isArray(data.items) || !data.items.length || data.items.some((item) => Object.keys(itemErrors(item)).length)) return null;
+    const amounts = data.items.map((item) => number(item.quantity) * number(item.unitPrice));
+    const materialCost = amounts.reduce((sum, amount) => sum + amount, 0);
     const laborCost = number(data.workers) * number(data.days) * number(data.dailyWage);
     const total = materialCost + laborCost;
     // 극단적인 입력으로 발생한 무한대 및 계산 범위 초과를 차단합니다.
-    if (![quantity, materialCost, laborCost, total].every((value) => Number.isFinite(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER) || quantity === 0) return null;
-    return { quantity, materialCost, laborCost, total };
+    if (![materialCost, laborCost, total].every((value) => Number.isFinite(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER)) return null;
+    return { amounts, materialCost, laborCost, total };
   }
 
   function initConstruction() {
-    mock.materials.forEach((item) => {
-      const option = document.createElement('option');
-      option.value = item.id;
-      option.textContent = item.spec + ' · 예시 규격';
-      $('spec').append(option);
-    });
     function updateAreaPreview() {
       const area = number($('area').value);
       const valid = Number.isFinite(area) && area > 0;
@@ -193,35 +203,95 @@
     showContent('costs-content', valid);
     if (!valid) return;
     summary();
-    const material = materialFor(draft.spec);
-    $('material-name').textContent = material.name;
-    $('material-spec').textContent = material.spec;
-    const savedPrice = number(prices[material.id]);
-    const hasSavedPrice = Number.isFinite(savedPrice) && savedPrice >= 0;
-    if (draft.priceSpec !== material.id || draft.unitPrice == null) {
-      draft.unitPrice = String(hasSavedPrice ? savedPrice : material.price);
-      draft.priceSpec = material.id;
-    }
-    $('price-source').textContent = hasSavedPrice ? '이 브라우저에 저장한 단가입니다. 필요하면 수정하세요.' : '실제 가격이 아닌 시연용 예시 단가입니다. 필요하면 수정하세요.';
+    if (!Array.isArray(draft.items) || !draft.items.length) draft.items = [emptyItem()];
+    costFields.forEach((key) => { if (draft[key] == null) draft[key] = '0'; });
     populate(costFields);
-    writeStorage('sessionStorage', draftKey, draft);
     function persistCosts() {
-      const saved = collect(costFields);
-      if (!errorsFor(draft, ['unitPrice']).unitPrice) {
-        prices[material.id] = number(draft.unitPrice);
-        writeStorage('localStorage', priceKey, prices);
-      }
-      return saved;
+      draft.items = Array.from($('estimate-items').children, (row) => {
+        const item = {};
+        itemFields.forEach((key) => { item[key] = row.querySelector('[data-field="' + key + '"]').value; });
+        return item;
+      });
+      return collect(costFields);
     }
-    $('costs-form').addEventListener('input', persistCosts);
-    $('costs-form').addEventListener('change', persistCosts);
+    function updateAmounts(showValidation) {
+      let sum = 0;
+      let validItems = true;
+      let firstInvalid;
+      Array.from($('estimate-items').children).forEach((row, index) => {
+        const item = draft.items[index];
+        const errors = itemErrors(item);
+        itemFields.forEach((key) => {
+          const input = row.querySelector('[data-field="' + key + '"]');
+          if (input.validity.badInput) errors[key] = '유효한 숫자를 입력해 주세요.';
+          if (showValidation || input.getAttribute('aria-invalid') === 'true') input.setAttribute('aria-invalid', errors[key] ? 'true' : 'false');
+        });
+        const invalid = Object.keys(errors).length > 0;
+        if (invalid) {
+          validItems = false;
+          if (!firstInvalid) firstInvalid = row.querySelector('[data-field="' + Object.keys(errors)[0] + '"]');
+        }
+        if (showValidation || !invalid) row.querySelector('.item-error').textContent = Object.values(errors).join(' ');
+        const amount = invalid ? null : number(item.quantity) * number(item.unitPrice);
+        row.querySelector('.item-amount').textContent = amount == null ? '—' : money(amount);
+        if (amount != null) sum += amount;
+      });
+      $('items-subtotal').textContent = validItems && sum <= Number.MAX_SAFE_INTEGER ? money(sum) : '품목을 확인해 주세요.';
+      return firstInvalid;
+    }
+    function renderItems() {
+      $('estimate-items').replaceChildren();
+      draft.items.forEach((item, index) => {
+        const fragment = $('estimate-item-template').content.cloneNode(true);
+        const row = fragment.querySelector('.estimate-item');
+        const errorId = 'item-error-' + index;
+        row.querySelector('.item-error').id = errorId;
+        row.querySelector('.item-heading').textContent = '품목 ' + (index + 1);
+        itemFields.forEach((key) => {
+          const input = row.querySelector('[data-field="' + key + '"]');
+          input.value = item && item[key] != null ? item[key] : '';
+          input.name = 'items[' + index + '][' + key + ']';
+          input.setAttribute('aria-describedby', errorId);
+        });
+        const remove = row.querySelector('.remove-item');
+        remove.disabled = draft.items.length === 1;
+        remove.setAttribute('aria-label', '품목 ' + (index + 1) + ' 삭제');
+        remove.addEventListener('click', () => {
+          persistCosts();
+          draft.items.splice(index, 1);
+          renderItems();
+          persistCosts();
+          $('add-item').focus();
+        });
+        $('estimate-items').append(fragment);
+      });
+      updateAmounts(false);
+    }
+    renderItems();
+    persistCosts();
+    $('add-item').addEventListener('click', () => {
+      persistCosts();
+      draft.items.push(emptyItem());
+      renderItems();
+      persistCosts();
+      $('estimate-items').lastElementChild.querySelector('input').focus();
+    });
+    function onCostInput() {
+      persistCosts();
+      updateAmounts(false);
+      $('calculation-error').textContent = '';
+    }
+    $('costs-form').addEventListener('input', onCostInput);
+    $('costs-form').addEventListener('change', onCostInput);
     $('costs-form').addEventListener('submit', (event) => {
       event.preventDefault();
       const saved = persistCosts();
       $('calculation-error').textContent = '';
+      const invalidItem = updateAmounts(true);
+      if (invalidItem) { invalidItem.focus(); return; }
       if (!showErrors(errorsFor(draft, costFields), costFields)) return;
       if (!calculate(draft)) {
-        $('calculation-error').textContent = '계산 가능한 범위를 벗어났습니다. 시공 면적·간격과 비용 입력값을 확인해 주세요.';
+        $('calculation-error').textContent = '계산 가능한 범위를 벗어났습니다. 품목 금액과 인건비 입력값을 확인해 주세요.';
         return;
       }
       if (saved) window.location.href = 'result.html';
@@ -229,18 +299,24 @@
   }
 
   function renderResult() {
-    draft = migrateBudget(readStorage('sessionStorage', draftKey));
-    const result = draft.priceSpec === draft.spec ? calculate(draft) : null;
+    draft = migrateItems(migrateBudget(readStorage('sessionStorage', draftKey)));
+    const result = calculate(draft);
     showContent('result-content', Boolean(result));
     if (!result) return false;
     summary();
-    const material = materialFor(draft.spec);
+    $('result-items').replaceChildren();
+    draft.items.forEach((item, index) => {
+      const row = document.createElement('tr');
+      [item.name.trim(), item.unit.trim(), format(number(item.quantity)), money(number(item.unitPrice)), money(result.amounts[index])].forEach((value) => {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        row.append(cell);
+      });
+      $('result-items').append(row);
+    });
     const values = {
       'total-cost': money(result.total), 'summary-material': money(result.materialCost),
-      'summary-labor': money(result.laborCost), 'pipe-length': format(result.quantity) + ' m',
-      'result-material-name': material.name, 'result-spec': material.spec,
-      'result-price': money(number(draft.unitPrice)) + '/m',
-      'result-quantity': format(result.quantity) + ' m', 'material-cost': money(result.materialCost),
+      'summary-labor': money(result.laborCost),
       'material-subtotal': money(result.materialCost), 'labor-subtotal': money(result.laborCost),
       'labor-equation': format(number(draft.workers)) + ' 명 × ' + format(number(draft.days)) + ' 일 × ' + money(number(draft.dailyWage))
     };
