@@ -217,6 +217,9 @@
     $('recalculate').addEventListener('click', () => {
       if (renderResult()) $('result-status').textContent = '현재 입력값으로 견적을 다시 계산했습니다.';
     });
+    $('print-estimate').addEventListener('click', () => {
+      if (renderResult()) window.print();
+    });
   }
   // 브라우저 뒤로/앞으로 이동 시 캐시된 화면도 최신 작업값으로 갱신합니다.
   window.addEventListener('pageshow', (event) => { if (event.persisted) window.location.reload(); });
