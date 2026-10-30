@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>관리자 화면 | 시공 견적</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/supabase-client.js" defer></script>
+  <script src="js/auth.js" defer></script>
+  <script src="js/mock-data.js" defer></script>
+  <script src="js/app.js?v=20261029-specification" defer></script>
+  <script src="js/attachments.js" defer></script>
+  <script src="js/print-preview.js" defer></script>
+  <script src="js/admin.js" defer></script>
+</head>
+<body class="admin-page" data-page="result" data-auth-required="true" data-auth-state="loading">
+  <header class="site-header">
+    <div class="header-inner">
+      <span class="site-mark" aria-hidden="true">↗</span>
+      <p>시공 견적 <span class="admin-badge">관리 화면</span></p>
+      <a class="admin-user-link" href="index.html">사용자 화면으로 →</a>
+    </div>
+  </header>
+  <main class="admin-layout">
+    <aside class="admin-sidebar">
+      <p class="eyebrow">MANAGEMENT</p>
+      <h1>견적 관리</h1>
+      <nav class="admin-nav" aria-label="관리자 메뉴">
+        <a href="#list" data-menu="list" aria-current="page"><span>01</span> 견적 목록·검색</a>
+        <a href="#detail" data-menu="detail"><span>02</span> 견적 상세</a>
+        <a href="#attachments" data-menu="attachments"><span>03</span> 첨부 도면 확인</a>
+        <a href="#print" data-menu="print"><span>04</span> 견적 출력</a>
+      </nav>
+      <p class="admin-sidebar-note">조회·확인·출력 중심의<br>관리 화면입니다.</p>
+    </aside>
+    <div class="admin-workspace">
+      <div class="notice admin-scope-note">
+        <strong>화면 구성 단계 · 관리자 권한과 전체 견적 조회는 아직 연결되지 않았습니다.</strong>
+        <p>현재 브라우저 탭에 작성 중인 견적만 표시합니다. 다른 사용자의 견적과 작성자 정보는 불러오지 않습니다.</p>
+      </div>
+      <section id="admin-list" aria-labelledby="admin-list-title">
+        <div class="admin-heading">
+          <div><p class="eyebrow">ESTIMATES</p><h2 id="admin-list-title">견적 목록</h2><p>사업명, 농가명, 시행관공서로 현재 견적을 찾아보세요.</p></div>
+          <button id="admin-refresh" type="button" class="button secondary">새로고침 ↻</button>
+        </div>
+        <div class="card">
+          <form id="admin-search" class="admin-search" role="search">
+            <label for="admin-query">견적 검색</label>
+            <div><input id="admin-query" type="search" placeholder="사업명 · 농가명 · 시행관공서"><button type="submit" class="button primary">검색</button><button id="admin-reset" type="button" class="button secondary">초기화</button></div>
+          </form>
+          <div class="admin-list-meta"><strong>조회 가능한 견적 <span id="admin-count">0</span>건</strong><span>현재 탭의 작업 자료</span></div>
+          <div class="table-scroll">
+            <table class="admin-list-table">
+              <caption class="sr-only">현재 확인 가능한 견적의 사업명, 농가명, 시행관공서, 작성자와 합계</caption>
+              <thead><tr><th scope="col">사업명</th><th scope="col">농가명</th><th scope="col">시행관공서</th><th scope="col">작성자</th><th scope="col">최종 합계</th><th scope="col">확인</th></tr></thead>
+              <tbody id="admin-records"></tbody>
+            </table>
+          </div>
+          <div id="admin-list-empty" class="admin-empty"><h3>확인할 견적이 없습니다.</h3><p>이 탭에서 사용자 화면으로 이동해 작성한 견적을 확인할 수 있습니다.</p><a class="button secondary" href="index.html">사용자 화면으로</a></div>
+          <p id="admin-list-status" class="field-help" role="status"></p>
+        </div>
+      </section>
+      <section id="admin-detail" aria-label="견적 상세 확인" hidden>
+        <div class="admin-detail-top"><a class="button secondary" href="#list">← 견적 목록으로</a><span>현재 탭의 작업 자료 · 조회 전용</span></div>
+        <p id="admin-drawing-empty" class="notice" hidden>첨부한 도면이 없습니다. 설치도면과 시행관공서 주소 지도면은 사용자 화면에서 첨부할 수 있습니다.</p>
+      <div class="page-heading">
+        <p class="eyebrow">ESTIMATE DETAILS</p>
+        <h2>견적 상세</h2>
+        <p>직접 입력한 품목별 수량·단가와 인건비를 합산한 견적입니다.</p>
+      </div>
+      <div id="missing-state" class="card empty-state" hidden>
+        <h2>확인할 수 있는 견적이 없습니다.</h2>
+        <p>현재 브라우저 탭에 작성 중인 견적이 없거나 입력값을 확인해야 합니다.</p>
+        
+        
+      </div>
+      <div id="result-content" hidden>
+        <div class="condition-strip" id="construction-summary">
+        </div>
+        <section class="total-card">
+          <div>
+            <p>최종 합계 금액</p>
+            <h2 id="total-cost">
+            </h2>
+            <span id="total-basis">자재비 합계 + 인건비 합계</span>
+          </div>
+          <dl>
+            <div>
+              <dt>자재비 합계</dt>
+              <dd id="summary-material">
+              </dd>
+            </div>
+            <div>
+              <dt>인건비 합계</dt>
+              <dd id="summary-labor">
+              </dd>
+            </div>
+          </dl>
+        </section>
+        <section class="card">
+          <div class="section-heading">
+            <h2>견적 내역</h2>
+          </div>
+          <div class="table-scroll">
+            <table class="estimate-table">
+              <caption class="sr-only">견적 품목별 규격, 단위, 수량, 단가 및 금액</caption>
+              <thead>
+                <tr>
+                  <th scope="col">품목명</th>
+                  <th scope="col">규격</th>
+                  <th scope="col">단위</th>
+                  <th scope="col">수량</th>
+                  <th scope="col">단가</th>
+                  <th scope="col">금액</th>
+                </tr>
+              </thead>
+              <tbody id="result-items"></tbody>
+            </table>
+          </div>
+          <div class="subtotal">
+            <span>자재비 합계</span>
+            <strong id="material-subtotal">
+            </strong>
+          </div>
+          <p class="field-help">수량과 금액은 표시할 때 소수점 최대 2자리로 반올림합니다. 계산은 반올림 전 값으로 수행합니다.</p>
+        </section>
+        <section class="card labor-card">
+          <div class="section-heading">
+            <h2>예상 인건비</h2>
+          </div>
+          <div class="labor-equation" id="labor-equation">
+          </div>
+          <div class="subtotal">
+            <span>인건비 합계</span>
+            <strong id="labor-subtotal">
+            </strong>
+          </div>
+        </section>
+        <section id="result-attachments" class="card labor-card" hidden>
+          <div class="section-heading"><h2>첨부 도면</h2></div>
+          <p id="attachment-status" class="field-help" role="status"></p>
+          <div id="attachment-images"></div>
+        </section>
+        <div class="bottom-actions result-actions admin-detail-actions">
+          <div>
+            
+            
+          </div>
+          <div>
+            <button type="button" id="recalculate" class="button secondary">다시 계산 <span aria-hidden="true">↻</span>
+            </button>
+            <button type="button" id="print-estimate" class="button primary">출력 미리보기</button>
+          </div>
+        </div>
+        <p id="result-status" class="storage-status" role="status">
+        </p>
+      </div>
+
+      </section>
+      <p id="storage-status" class="storage-status" role="status"></p>
+    </div>
+  </main>
+    <dialog id="print-preview" class="print-preview" aria-labelledby="preview-title">
+      <div class="preview-toolbar">
+        <div>
+          <h2 id="preview-title">출력 미리보기</h2>
+          <p>A4 너비 기준입니다. 실제 페이지 나눔은 인쇄 설정에 따라 달라질 수 있습니다.</p>
+          <label class="preview-selection" for="preview-type">출력할 내용
+            <select id="preview-type">
+              <option value="all">전체 (견적 조건 + 견적서)</option>
+              <option value="conditions">견적 조건만</option>
+              <option value="estimate">견적서만</option>
+            </select>
+          </label>
+        </div>
+        <div class="preview-actions">
+          <button type="button" id="close-preview" class="button secondary" autofocus>견적서로 돌아가기</button>
+          <button type="button" id="confirm-print" class="button primary" disabled>출력하기</button>
+        </div>
+      </div>
+      <p id="preview-status" class="field-help" role="status"></p>
+      <div class="preview-stage">
+        <iframe id="preview-frame" title="견적서 인쇄 내용 미리보기"></iframe>
+      </div>
+    </dialog>
+
+</body>
+</html>
