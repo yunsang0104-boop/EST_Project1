@@ -1,0 +1,64 @@
+/* 관리자 화면에만 적용합니다. 사용자 화면의 공통 스타일은 변경하지 않습니다. */
+.admin-page .header-inner { max-width: 1360px; }
+.admin-badge { display: inline-block; margin-left: 12px; padding: 3px 9px; border: 1px solid var(--border); border-radius: 5px; background: var(--secondary); color: var(--primary); font-size: 11px; }
+.admin-user-link { margin-left: auto; font-size: 12px; color: var(--primary); text-underline-offset: 4px; white-space: nowrap; }
+.admin-page .admin-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 36px; max-width: 1360px; padding: 32px; }
+.admin-sidebar { padding-top: 8px; }
+.admin-sidebar h1 { font-size: 26px; margin-bottom: 28px; }
+.admin-nav { display: flex; flex-direction: column; gap: 8px; }
+.admin-nav a { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid transparent; border-radius: var(--control-radius); font-size: 14px; text-decoration: none; color: var(--muted); }
+.admin-nav a span { font-size: 11px; }
+.admin-nav a:hover { background: var(--secondary); color: var(--primary); }
+.admin-nav a[aria-current] { border-color: var(--border); background: var(--secondary); color: var(--primary); font-weight: 700; }
+.admin-sidebar-note { margin: 28px 12px 0; color: var(--muted); font-size: 12px; }
+.admin-workspace { min-width: 0; }
+.admin-scope-note { margin-bottom: 32px; }
+.admin-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 0 0 24px; }
+.admin-heading h2 { font-size: 27px; }
+.admin-heading p:last-child { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+.admin-search > label { display: block; margin-bottom: 10px; font-size: 14px; font-weight: 650; }
+.admin-search > div { display: flex; gap: 12px; }
+.admin-search input { min-width: 0; flex: 1; }
+.admin-search .button { white-space: nowrap; }
+.admin-list-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 28px 0 16px; font-size: 13px; }
+.admin-list-meta span { color: var(--muted); }
+.admin-list-meta #admin-count { color: var(--primary); }
+.admin-list-table { min-width: 680px; }
+.admin-list-table th, .admin-list-table td { text-align: left; }
+.admin-list-table td { max-width: 190px; white-space: normal; overflow-wrap: anywhere; }
+.admin-list-table td:nth-child(5) { color: var(--primary); font-weight: 700; }
+.admin-list-table .button { padding: 8px 12px; min-height: 38px; white-space: nowrap; }
+.admin-empty { padding: 48px 16px; text-align: center; }
+.admin-empty h3 { margin: 0 0 8px; font-size: 18px; }
+.admin-empty p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+.admin-detail-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.admin-detail-top > span { color: var(--muted); font-size: 12px; }
+.admin-page .page-heading { margin: 28px 0 24px; }
+.admin-page .page-heading h1 { font-size: 28px; }
+.admin-detail-actions > div:empty { display: none; }
+.admin-detail-actions { justify-content: flex-end; }
+#admin-drawing-empty { margin: 20px 0; }
+@media (max-width: 1000px) {
+  .admin-page .admin-layout { grid-template-columns: 170px minmax(0, 1fr); gap: 24px; padding: 24px; }
+  .admin-page .total-card { flex-direction: column; align-items: stretch; }
+  .admin-page .total-card dl { min-width: 0; padding: 16px 0 0; border-left: 0; border-top: 1px solid var(--on-primary-border); }
+}
+@media (max-width: 760px) {
+  .admin-page .admin-layout { grid-template-columns: minmax(0, 1fr); padding: 20px; }
+  .admin-sidebar { padding: 0; }
+  .admin-sidebar h1 { margin-bottom: 16px; }
+  .admin-nav { display: grid; grid-template-columns: 1fr 1fr; }
+  .admin-nav a { font-size: 13px; padding: 10px; gap: 8px; }
+  .admin-sidebar-note { display: none; }
+  .admin-heading { align-items: flex-start; }
+  .admin-heading h2 { font-size: 24px; }
+  .admin-heading .button { padding: 10px 12px; white-space: nowrap; }
+  .admin-search > div { flex-wrap: wrap; gap: 8px; }
+  .admin-search input { flex-basis: 100%; }
+  .admin-user-link { font-size: 11px; }
+  .admin-page .admin-detail-actions > div { grid-template-columns: 1fr 1fr; }
+}
+@media print {
+  .admin-page .admin-sidebar, .admin-page .admin-scope-note, .admin-page .admin-detail-top, .admin-page #admin-drawing-empty { display: none; }
+  .admin-page .admin-layout { display: block; padding: 0; margin: 0; max-width: none; }
+}
